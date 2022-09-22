@@ -1,0 +1,144 @@
+{extend name="admin/public/layout" /}
+{block name="content"}<template id="app">
+    <div>
+        {:widget('before_content')}
+        <div class="form-tab">
+            <a-tabs v-if="Object.keys(tabs).length > 1" type="card" v-model="activeTab">
+                <a-tab-pane v-for="(item,key) in tabs" :key="key" :tab="item"></a-tab-pane>
+            </a-tabs>
+        </div>
+        <a-form-model class="form" ref="ruleForm" :model="form" :rules="rules" :label-col="{span: 3}"
+            :wrapper-col="{span: 18}">
+            {:widget('before_form_item')}
+            <div v-show="activeTab == 'base'">
+                <a-form-model-item prop='order_sn' label='订单编号'>
+                    <a-input placeholder='请输入订单编号' v-model='form.order_sn'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='user_id' label='用户'>
+                    <yi-select mode='default' v-model='form.user_id' url='/system/admin/user/index'
+                        label-field='nickname' value-field='id' :paginate='true'></yi-select>
+                </a-form-model-item>
+                <a-form-model-item prop='is_pay' label='是否支付'>
+                    <a-select mode='default' v-model='form.is_pay'> </a-select>
+                </a-form-model-item>
+                <a-form-model-item prop='pay_time' label='支付时间'>
+                    <yi-date-picker value-format='X' show-time placeholder='请选择日期时间' v-model='form.pay_time' />
+                </a-form-model-item>
+                <a-form-model-item prop='is_delivery' label='是否发货'>
+                    <a-select mode='default' v-model='form.is_delivery'> </a-select>
+                </a-form-model-item>
+                <a-form-model-item prop='delivery' label='发货时间'>
+                    <yi-date-picker value-format='X' show-time placeholder='请选择日期时间' v-model='form.delivery' />
+                </a-form-model-item>
+                <a-form-model-item prop='is_received' label='是否收货'>
+                    <a-select mode='default' v-model='form.is_received'>
+                        <a-select-option :value='0'>未收货</a-select-option>
+                        <a-select-option :value='1'>已收货</a-select-option>
+                    </a-select>
+                </a-form-model-item>
+                <a-form-model-item prop='received_time' label='收货时间'>
+                    <yi-date-picker value-format='X' show-time placeholder='请选择日期时间' v-model='form.received_time' />
+                </a-form-model-item>
+                <a-form-model-item prop='express_code' label='快递公司编号'>
+                    <yi-select mode='default' v-model='form.express_code' url='/shop/admin/express/index'
+                        label-field='name' value-field='code' :paginate='true'></yi-select>
+                </a-form-model-item>
+                <a-form-model-item prop='express_no' label='快递单号'>
+                    <a-input placeholder='请输入快递单号' v-model='form.express_no'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='status' label='订单状态'>
+                    <a-input placeholder='请输入订单状态' v-model='form.status'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='contactor' label='联系人'>
+                    <a-input placeholder='请输入联系人' v-model='form.contactor'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='contactor_phone' label='联系电话'>
+                    <a-input placeholder='请输入联系电话' v-model='form.contactor_phone'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='address' label='送货地址'>
+                    <a-input placeholder='请输入送货地址' v-model='form.address'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='delivery_price' label='运费'>
+                    <a-input placeholder='请输入运费' v-model='form.delivery_price'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='order_price' label='订单金额'>
+                    <a-input placeholder='请输入订单金额' v-model='form.order_price'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='pay_price' label='应付金额'>
+                    <a-input placeholder='请输入应付金额' v-model='form.pay_price'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='pay_type' label='支付平台'>
+                    <a-input placeholder='请输入支付平台' v-model='form.pay_type'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='pay_method' label='支付方式'>
+                    <a-input placeholder='请输入支付方式' v-model='form.pay_method'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='products_price' label='商品总额'>
+                    <a-input placeholder='请输入商品总额' v-model='form.products_price'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='discount_price' label='优惠金额'>
+                    <a-input placeholder='请输入优惠金额' v-model='form.discount_price'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='payed_price' label='已付金额'>
+                    <a-input placeholder='请输入已付金额' v-model='form.payed_price'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='buyer_comment' label='买家是否评价'>
+                    <a-input placeholder='请输入买家是否评价' v-model='form.buyer_comment'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='saler_comment' label='卖家是否评价'>
+                    <a-input placeholder='请输入卖家是否评价' v-model='form.saler_comment'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='saler_remark' label='买家备注'>
+                    <a-input placeholder='请输入买家备注' v-model='form.saler_remark'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='remark' label='用户备注'>
+                    <a-input placeholder='请输入用户备注' v-model='form.remark'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='order_type' label='订单类型'>
+                    <a-input placeholder='请输入订单类型' v-model='form.order_type'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='groupon_status' label='团购状态'>
+                    <a-input placeholder='请输入团购状态' v-model='form.groupon_status'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='order_sn_re' label='out_trade_no'>
+                    <a-input placeholder='请输入out_trade_no' v-model='form.order_sn_re'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='after_buyer_remark' label='售后买家留言'>
+                    <a-input placeholder='请输入售后买家留言' v-model='form.after_buyer_remark'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='after_saler_remark' label='售后卖家留言'>
+                    <a-input placeholder='请输入售后卖家留言' v-model='form.after_saler_remark'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='after_sale_status' label='售后状态'>
+                    <a-input placeholder='请输入售后状态' v-model='form.after_sale_status'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='refund_fee' label='退款金额'>
+                    <a-input placeholder='请输入退款金额' v-model='form.refund_fee'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='score_price' label='score_price'>
+                    <a-input placeholder='请输入score_price' v-model='form.score_price'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='use_score' label='use_score'>
+                    <a-input-number v-model='form.use_score' step='1'></a-input-number>
+                </a-form-model-item>
+                <a-form-model-item prop='money_price' label='money_price'>
+                    <a-input placeholder='请输入money_price' v-model='form.money_price'></a-input>
+                </a-form-model-item>
+            </div>
+            {:widget('after_form_item')}
+            <a-form-item class="fixed-bottom-btn-group" :wrapper-col="{ span: 14, offset: 4 }">
+                <a-button class="btn" :loading="btnLoading" type="primary" @click="onSubmit">提交</a-button>
+                <a-button class="btn" @click="onCancel">取消</a-button>
+            </a-form-item>
+        </a-form-model>
+
+        {:widget('after_content')}
+    </div>
+</template>
+{/block}
+{block name="style"}
+{:widget('style')}
+{/block}
+{block name="scripts"}
+{:widget('scripts')}
+{/block}

@@ -1,0 +1,8 @@
+<a-form-model-item label="商品">
+    <a-button type="danger" @click="handleChooseProduct">选择商品</a-button>
+    <a-table :columns="columns" :data-source="products" :pagination="false">
+        <template slot="action" slot-scope="row,index,val,column">
+            <span class="pointer text-danger" @click="handleDelete(row, index, val, column)">删除</span>
+        </template>
+    </a-table>
+</a-form-model-item>

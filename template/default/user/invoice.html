@@ -1,0 +1,110 @@
+{extend name="cms/public/base" /}
+{block name="content"}
+<main id="mainbody">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 user-menu">
+                {include file="cms/user/menu" /}
+            </div>
+            <div class="col-md-9 user-content">
+                <h3>开票</h3>
+                <hr>
+                <div>
+                    <b style="font-weight: 700;">开票信息</b>
+                    <ul>
+                        {foreach $invoice_list as $item} 
+                        <li class="y-card pointer shop-invoice-item{if $item->is_default} current-invoice {/if}" data-id="{$item.id}">
+                            <div>
+                                <span class="invoice-title">公司名称：</span>
+                                <span>{$item.name}</span>
+                            </div>
+                            <div>
+                                <span class="invoice-title">地址：</span>
+                                <span>{$item.address}</span>
+                            </div>
+                            <div>
+                                <span class="invoice-title">纳税人识别号：</span>
+                                <span>{$item.no}</span>
+                            </div>
+                            <div>
+                                <span class="invoice-title">开户银行：</span>
+                                <span>{$item.bank}</span>
+                            </div>
+                            <div>
+                                <span class="invoice-title">银行账号：</span>
+                                <span>{$item.account}</span>
+                            </div>
+                        </li>
+                        {/foreach}
+                    </ul>
+                </div>
+                <div>
+                    <b style="font-weight: 700;">送达地址</b>
+                    <ul>
+                        {foreach $address_list as $item}
+                        <li class="y-card pointer address-card shop-address-item {if $item->is_default} current-address {/if}" data-id="{$item.id}">
+                            <div>{$item.address} {$item.street} </div>
+                            <div style="font-size: 13px;color: #888;">{$item.contactor_name} {$item.phone}</div>
+                        </li>
+                        {/foreach}
+                    </ul>
+                </div>
+                <div>
+                    <button class="btn btn-danger btn-submit">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</main>
+{/block}
+
+{block name="styles"}
+<link rel="stylesheet" href="__CMS_THEME__css/user.css">
+<style>
+    .y-card {
+        padding: 15px;
+        margin: 5px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    .current-address, .current-invoice {
+        border: 1px solid #ff5959;
+    }
+    .shop-invoice-item .invoice-title{
+        font-weight: 700;
+    }
+</style>
+{/block}
+
+{block name="scripts"}
+<script>
+    Yi.ready(function() {
+        $('.shop-address-item').click(function() {
+            $('.shop-address-item').removeClass('current-address');
+            $(this).addClass('current-address')
+        });
+        $('.shop-invoice-item').click(function() {
+            $('.shop-invoice-item').removeClass('current-invoice');
+            $(this).addClass('current-invoice')
+        });
+        $('.btn-submit').click(function() {
+            var form = {
+                order_sn: Yi.getQuery('order_sn'),
+                info_id: $($('.current-invoice')[0]).data('id'),
+                address_id: $($('.current-address')[0]).data('id')
+            }
+            Yi.ajax({
+                url: '/shop/api/invoice/submit',
+                data:form
+            }, function() {
+                setTimeout(function() {
+                    location.href = '/shop/index/order/index.html'
+                }, 1000)
+            })
+        })
+    });
+</script>
+{/block}

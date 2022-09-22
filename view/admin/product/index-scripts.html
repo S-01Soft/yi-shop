@@ -1,0 +1,17 @@
+<script>
+    Yi.event.on(EventPrefix + 'Columns', function(data) {
+        var show = 'id,title,image,on_sale,created_at,sold_count,comment_count,category.name,action$'.split(',');
+        for (var i = 0; i < data.length; i ++) {
+            if (show.indexOf(data[i].key) == -1) data[i].visible = false;
+        }
+
+        Yi.util.find(data, {key: 'title'}, function(item) {
+            item.width = '350px';
+            item.customRender = function(val, row, index, column) {
+                var el = '<div><div style="width:350px;" class="line-1" title="' + val + '">' + val + '</div><div style="width:350px;" class="line-1">' + row.description + '</div></div>';
+                return Yi.render.html(val, row, index, column, el);
+            }
+        })
+        return data;
+    });
+</script>

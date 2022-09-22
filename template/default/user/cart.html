@@ -1,0 +1,348 @@
+{extend name="cms/public/base" /}
+{block name="content"}
+<main id="mainbody">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 user-menu">
+                {include file="cms/user/menu" /}
+            </div>
+            <div class="col-md-9 user-content">
+                <h3>购物车</h3>
+                <hr>
+                {php} $total_price = 0; {/php}
+                <ul class="product-list">
+                    {foreach $data as $item} 
+                    {php} if($item->is_selected) $total_price += $item->quantity * $item->sku->price; {/php}
+                    <li> 
+                        <div class="product-item" data-sku-id="{$item->sku->id}" data-cart-id="{$item->id}">
+                            <div style="display: flex;justify-content: space-between;">
+                                <input type="checkbox" class="product-selected" {if $item->is_selected}checked{/if}>
+                                <i class="far fa-trash-alt pointer btn-delete text-sm" style="color: #f4345f;" aria-hidden="true"></i>
+                            </div>
+                            <div class="product-img">
+                                <img src="{$item->product->image[0]}" alt="">
+                            </div>
+                            <div class="product-content">
+                                <a href="/shop/index/product/info?id={$item->product->id}"><div class="product-title">{$item->product->title}</div></a>
+                                <div class="product-attr">{$item->sku->value}</div>
+                                <div class="product-price" data-price="{$item->sku->price}">￥{$item->sku->price}</div>
+                                <div>
+                                    <input type="number" class="product-quantity" value="{$item->quantity}">
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </li>
+                    {/foreach}
+                </ul>
+                {if count($data) == 0}
+                <div style="padding: 40px 20px;" class="text-sm text-muted text-center">
+                    购物车为空
+                </div>
+                {/if}
+                
+                <div class="cart-address mt-3">
+                    
+                    {if count($address_list)==0} 
+                    <div class="text-muted text-center text-sm pt-5 pb-5" style="border: 1px solid #eee; border-radius: 5px;">
+                        <span class="text-sm">没有收货地址，</span><a class="text-sm" style="color: rgb(54, 103, 251);" href="/area/index/user/address.html">去添加</a>
+                    </div>
+                    {else}
+                    <div style="display: flex;justify-content: space-between;"> <b style="font-weight: 700;">配送至：</b> <a class="text-sm" style="color: rgb(54, 103, 251);" href="/area/index/user/address.html">管理地址</a> </div>
+                    {/if}
+                    <ul>
+                        {foreach $address_list as $i => $item}
+                        <li class="cart-card shop-address-item pointer {if $i == 0} current-address {/if}" data-id="{$item.id}">
+                            <div>{$item.address} {$item.street} </div>
+                            <div style="font-size: 13px;color: #888;">{$item.contactor_name} {$item.phone}</div>
+                        </li>
+                        {/foreach}
+                    </ul>
+                </div>
+                <div class="price-container"></div>
+            </div>
+        </div>
+    </div>
+</main>
+{/block}
+
+{block name="styles"}
+<link rel="stylesheet" href="__CMS_THEME__css/user.css">
+<style>
+.hidden {
+    display: none!important;
+}
+.product-list li {
+    margin: 5px 0;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+.product-img {
+    width: 100px;
+    float: left;
+}
+.product-img img {
+    width: 100%;
+    border-radius: 5px;
+}
+.product-content {
+    margin-left: 120px;
+}
+.product-title {
+    font-size: 15px;
+}
+.product-attr {
+    font-size: 13px;
+    color: #888;
+}
+.product-quantity {
+    width: 80px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    height: 30px;
+    line-height: 30px;
+    text-indent: 10px;
+}
+.product-price {
+    font-size: 13px;
+}
+.cart-total {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+}
+.cart-card {
+    padding: 15px 10px;
+    margin: 5px 0;
+    border: 1px solid #eee;
+    border-radius: 5px;
+
+}
+.total-price {
+    font-size: 22px;
+    font-weight: bolder;
+    color: #ff5959;
+}
+.to-pay {
+    display: inline-block;
+    border: 1px solid #ff5959;
+    background-color: #ff5959;
+    color: #fff;
+    border-radius: 55px;
+    padding: 5px 15px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.current-address {
+    border: 1px solid #ff5959;
+}
+.price-normal *, .price-danger * {
+    font-size: 15px;
+}
+.price-normal, .price-normal * {
+    color:#888;
+}
+.price-danger, .price-danger * {
+    color:#fa436a;
+}
+#remark {
+    font-size: 13px;
+    color: #222;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+</style>
+{/block}
+
+{block name="scripts"}
+<script id="tpl-price" type="text/html">
+    <div class=" mt-3">
+        <b style="font-weight: 700;">订单金额：</b> 
+    </div>
+    <div class="cart-card">
+        <div class="d-flex flex-row justify-content-between">
+            <span class="text-sm text-muted">商品金额：</span><span class="price-normal">￥ {{products_price}}</span>
+        </div>
+        <div class="d-flex flex-row justify-content-between mt-2">
+            <span class="text-sm text-muted">运费：</span><span class="price-normal">￥ {{delivery_price}}</span>
+        </div>
+        <div class="d-flex flex-row justify-content-between mt-2">
+            <span class="text-sm text-muted">优惠：</span><span class="price-danger">￥ -{{discount_price}}</span>
+        </div>
+        <% if (money_price > 0) { %>
+        <div class="d-flex flex-row justify-content-between mt-2">
+            <span class="text-sm text-muted">余额可抵扣 ￥{{money_price}} <span></span></span>
+            <% if (!use_money) { %>
+            <span class="text-sm btn-use-money pointer">使用</span>
+            <% } else {%>
+            <span class="price-danger btn-use-money pointer">￥ -{{money_price}}</span>
+            <% } %>
+        </div>
+        <% } %>
+        <% if (score_price > 0) { %>
+        <div class="d-flex flex-row justify-content-between mt-2">
+            <span class="text-sm text-muted">积分可抵扣 ￥{{score_price}}</span>
+            <% if (!use_score) { %>
+            <span class="text-sm btn-use-score pointer">使用</span>
+            <% } else { %>
+            <span class="price-danger btn-use-score pointer">￥ -{{score_price}}</span>
+            <% } %>
+        </div>
+        <% } %>
+        <div class="d-flex flex-column mt-2">
+            <span class="text-sm text-muted">备注：</span>
+            <textarea id="remark" placeholder="请输入备注"></textarea>
+        </div>
+        <div class="cart-total text-right mt-3">
+            <span>合计</span> <span class="total-price ml-2 mr-2">{{order_price}}</span> <span class="to-pay">去支付</span>
+        </div>
+    </div>
+</script>
+<script>
+    require.config({
+        paths: {
+            'art-template': '../modules/shop/js/art-template'
+        }
+    });
+    Yi.require('art-template')
+    Yi.ready(function() {
+        var template = require('art-template');
+        function clacTotalPrice()
+        {
+            var total = 0;
+            $('.product-item').each(function(index, item) {
+                if ($($('.product-selected', this)[0]).is(':checked')) {
+                    var v = $('.product-quantity', item).val();
+                    var price = $('.product-price', item).data('price');
+                    total += v * price;
+                }
+            });
+            total = total.toFixed(2);
+            $('.total-price').text('￥' + total)
+        }
+        $('.product-selected').change(function() {
+            var ids = [];
+            $('.product-item').each(function(index, item) {
+                if ($($('.product-selected', this)[0]).is(':checked')) {
+                    ids.push($(item).data('cart-id'))
+                }
+            });
+            clacTotalPrice();
+            Yi.ajax({
+                url: '/shop/api/cart/updateStatus',
+                data: {ids: ids},
+            }, function() {
+                return false;
+            })
+        })
+        $('.product-quantity').change(function() {
+            var p = $(this).parents('.product-item')[0];
+            var sku_id = $(p).data('sku-id');
+            var quantity = $(this).val();
+            if (quantity <= 0) {
+                Toastr.error("数量不能小于等于零");
+                return;
+            }
+            editQuanttiy(sku_id, quantity);
+        });
+
+        $('.shop-address-item').click(function() {
+            $('.shop-address-item').removeClass('current-address');
+            $(this).addClass('current-address')
+        });
+
+        $('.btn-delete').click(function() {
+            var id = $($(this).parents('.product-item')[0]).data('cart-id');
+            $.confirm('确定删除吗', function() {
+                Yi.ajax({
+                    url: '/shop/api/cart/delete',
+                    data: {ids: [id]}
+                }, function() {
+                    location.reload();
+                })
+
+            })
+        })
+
+        $(document).on('click', '.to-pay', function() {
+            var form = {
+                address_id: getCurrentAddressId(),
+                use_money: use_money,
+                use_score: use_score,
+                remark: $('#remark').val()
+            };
+            if (!form.address_id) {
+                Toastr.error("请选择送货地址");
+                return ;
+            }
+            Yi.ajax({
+                url: '/shop/api/order/add',
+                data: form
+            }, function(data) {
+                location.href = '/pay/submit.html?out_order_sn=' + data;
+                return false;
+            });
+        });
+
+        function getCurrentAddressId()
+        {
+            var id = 0;
+            $('.shop-address-item.current-address').each(function(i, item) {
+                if ($(item).hasClass('current-address')) id = $(item).data('id');
+            });
+            return id;
+        }
+
+        function editQuanttiy(sku_id, quantity)
+        {
+            Yi.ajax({
+                url: '/shop/api/cart/edit',
+                data: {
+                    sku_id: sku_id, quantity: quantity
+                }
+            }, function() {
+                getPrice();
+                return false;
+            })
+        }
+        var use_money = 0;
+        var use_score = 0;
+
+        function getPrice()
+        {
+            Yi.post({
+                url: '/shop/api/order/getPrice',
+                loading: false,
+                data: {
+                    address_id: getCurrentAddressId(),
+                    desc:  "",
+                    use_money:  use_money,
+                    use_score:  use_score
+                }
+            }, function(data) {
+                data.use_money = use_money;
+                data.use_score = use_score;
+                var html = template('tpl-price', data);
+                $('.price-container').html(html)
+                return false;
+            }, function() {
+                return false;
+            });
+        }
+
+        getPrice();
+
+        $(document).on('click', '.btn-use-money', function() {
+            use_money = use_money ? 0 : 1;
+            getPrice();
+        });
+        $(document).on('click', '.btn-use-score', function() {
+            use_score = use_score ? 0 : 1;
+            getPrice();
+        });
+    });
+</script>
+{/block}

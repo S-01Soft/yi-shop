@@ -1,0 +1,21 @@
+<script>
+    Yi.vue.mixin({
+        data: function() {
+            return {
+                shopData: {
+                    show: false,
+                    params: {
+                        type: '0', target: ''
+                    }
+                }
+            }
+        },
+        watch: {
+            'shopData.params': {
+                deep: true, handler: function(v) {
+                    this.form.local_params = JSON.stringify(v);
+                }
+            }
+        }
+    })
+</script>

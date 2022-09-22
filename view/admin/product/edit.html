@@ -1,0 +1,83 @@
+{extend name="admin/public/layout" /}
+{block name="content"}<template id="app">
+    <div>
+        {:widget('before_content')}
+        <div class="form-tab">
+            <a-tabs v-if="Object.keys(tabs).length > 1" type="card" v-model="activeTab">
+                <a-tab-pane v-for="(item,key) in tabs" :key="key" :tab="item"></a-tab-pane>
+            </a-tabs>
+        </div>
+        <a-form-model class="form" ref="ruleForm" :model="form" :rules="rules" :label-col="{span: 3}"
+            :wrapper-col="{span: 18}">
+            {:widget('before_form_item')}
+            <div v-show="activeTab == 'base'">
+                <a-form-model-item prop='category_id' label='分类'>
+                    <yi-select mode='default' v-model='form.category_id' url='/shop/admin/category/tree_list'
+                        label-field='name' value-field='id' :paginate='false'></yi-select>
+                </a-form-model-item>
+                <a-form-model-item prop='title' label='标题'>
+                    <a-input placeholder='请输入标题' v-model='form.title'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='description' label='描述'>
+                    <a-textarea placeholder='请输入描述' v-model='form.description'></a-textarea>
+                </a-form-model-item>
+                <a-form-model-item prop='image' label='图片'>
+                    <yi-image v-model='form.image' :multiple="true"></yi-image>
+                </a-form-model-item>
+                <a-form-model-item prop='content' label='内容'>
+                    <yi-editor v-model='form.content' id='i-content'></yi-editor>
+                </a-form-model-item>
+                <a-form-model-item prop='on_sale' label='上架'>
+                    <a-switch v-model='form.on_sale' />
+                </a-form-model-item>
+                <a-form-model-item prop='unit_id' label='单位'>
+                    <yi-select mode='default' v-model='form.unit_id' url='/shop/admin/unit/all'
+                        label-field='name' value-field='id'></yi-select>
+                </a-form-model-item>
+                <a-form-model-item prop='service_tags' label='服务'>
+                    <yi-select mode='multiple' v-model='form.service_tags' url='/shop/admin/service_tag/all'
+                        label-field='title' value-field='id' :paginate='false'></yi-select>
+                </a-form-model-item>
+                <a-form-model-item prop='delivery_tpl_id' label='运费模板'>
+                    <yi-select mode='default' v-model='form.delivery_tpl_id' url='/shop/admin/delivery_tpl/all'
+                        label-field='title' value-field='id'></yi-select>
+                </a-form-model-item>
+                <a-form-model-item prop='stock_type' label='何时扣库存'>
+                    <a-radio-group v-model="form.stock_type">
+                        <a-radio-button :value="0">默认</a-radio-button>
+                        <a-radio-button :value="1">付款扣库存</a-radio-button>
+                        <a-radio-button :value="2">下单扣库存</a-radio-button>
+                    </a-radio-group>
+                </a-form-model-item>
+                <a-form-model-item prop='score_persent' label='积分抵现比例'>
+                    <a-input-number v-model='form.score_persent' step='0.01'></a-input-number>
+                </a-form-model-item>
+            </div>
+            <div v-show="activeTab == 'seo'">
+                <a-form-model-item prop='seo_title' label='SEO标题'>
+                    <a-input placeholder='请输入SEO标题' v-model='form.seo_title'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='seo_keywords' label='SEO关键字'>
+                    <a-input placeholder='请输入SEO关键字' v-model='form.seo_keywords'></a-input>
+                </a-form-model-item>
+                <a-form-model-item prop='seo_description' label='SEO描述'>
+                    <a-textarea placeholder='请输入SEO描述' v-model='form.seo_description'></a-textarea>
+                </a-form-model-item>
+            </div>
+            {:widget('after_form_item')}
+            <a-form-item class="fixed-bottom-btn-group" :wrapper-col="{ span: 14, offset: 4 }">
+                <a-button class="btn" :loading="btnLoading" type="primary" @click="onSubmit">提交</a-button>
+                <a-button class="btn" @click="onCancel">取消</a-button>
+            </a-form-item>
+        </a-form-model>
+
+        {:widget('after_content')}
+    </div>
+</template>
+{/block}
+{block name="style"}
+{:widget('style')}
+{/block}
+{block name="scripts"}
+{:widget('scripts')}
+{/block}

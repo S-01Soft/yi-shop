@@ -1,0 +1,58 @@
+{extend name="admin/public/layout" /}
+{block name="content"}<template id="app">
+    <div>
+        {:widget('before_content')}
+        <div class="btns">
+            {if !in_array('refresh_btn', $hidden)}
+            <a-button @click="init">
+                <a-icon type="reload" />
+            </a-button>
+            {/if}
+            {if !in_array('add_btn', $hidden)}
+            <a-button type="primary" @click="handleAdd"
+                class="{:$auth->check('/shop/admin/unit/add', $auth->id) ? '' : 'hide' }">添加</a-button>
+            {/if}
+            {if !in_array('delete_btn', $hidden)}
+            <a-popconfirm v-if="ids.length" placement="topRight" ok-text="确认" cancel-text="取消"
+                @confirm="handleDeleteBatch"
+                class="{:$auth->check('/shop/admin/unit/delete', $auth->id) ? '' : 'hide' }">
+                <template slot="title">
+                    <p>确认删除吗？</p>
+                </template>
+                <a-button type="danger">删除</a-button>
+            </a-popconfirm>
+            {/if}
+            {:widget('after_btns')}
+        </div>
+        {:widget('before_table')}
+        <a-table class="table" :columns="c_columns" :data-source="data"
+            :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }" :pagination="false"
+            :loading="loading">
+            <template slot="action" slot-scope="row">
+                {:widget('before_action_slot')}
+                {if !in_array('slot_edit_btn', $hidden)}
+                <a href="javascript:;" @click="handleEdit(row)">编辑</a>
+                {/if}
+                {if !in_array('slot_delete_btn', $hidden)}
+                <a-popconfirm placement="topRight" ok-text="确认" cancel-text="取消" @confirm="handleDelete(row)">
+                    <template slot="title">
+                        <p>确认删除该记录吗？</p>
+                    </template>
+                    <span class="pointer text-danger">删除</span>
+                </a-popconfirm>
+                {/if}
+                {:widget('after_action_slot')}
+            </template>
+            {:widget('table_slot')}
+        </a-table>
+        {:widget('after_table')}
+        <a-pagination v-if="pagination.total" v-model="query.page" :total="pagination.total" :page-size.sync="query.page_size" show-size-changer show-quick-jumper :show-total="function(total, range) {return $lang('%d records', total);}" :page-size-options="pagination.page_size_options"></a-pagination>
+        {:widget('after_content')}
+    </div>
+</template>
+{/block}
+{block name="style"}
+{:widget('style')}
+{/block}{block name="scripts"}
+{:widget('scripts')}
+{/block}

@@ -1,0 +1,209 @@
+{extend name="cms/public/base" /}
+
+{block name="content"}
+<main id="mainbody">
+    <div class="container pt-5">
+        <div class="row bg-white pt-3 pb-3">
+            <div class="col-md-4">
+                <img class="product-img" style="width: 100%;" src="{$product.image[0]}" alt="">
+                <div>
+                    <ul class="product-img-list">
+                        {foreach $product->image as $i => $v}
+                        <li class="{if $i==0}img-active{/if}" style="background-color: #fff;"><img src="{$v}" alt=""></li>
+                        {/foreach}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h5>{$product->title}</h5>
+                <div class="text-muted mt-3">{$product->description}</div>
+                <div class="mt-3 m-title">价格 <span class="product-price">￥{$product->skus[0]->price}</span></div>
+                <div class="mt-3 m-title">库存 <span class="product-stock">{$product->skus[0]->stock}</span></div>
+
+                <div class="mt-3">
+                    {foreach $product->attrItems as $index => $item} 
+                    <span class="text-bolder">{$product->attrGroup[$index]}</span>
+                    <div>
+                        {foreach $item as $i => $v} 
+                        <span data-gid="{$index}" data-attr="{$i}" class="product-attr-item {if $i == 0}attr-active{/if}">{$v}</span>
+                        {/foreach}
+                    </div>
+                    {/foreach} 
+                </div>
+                <div class="mt-3">
+                    <div class="m-title">数量</div>
+                    <div class="num-box">
+                        <input id="quantity" type="number" value="1">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div>
+                        {if get_user()->id}
+                        <span class="btn btn-sm btn-danger add-cart">加入购物车</span> <a href="/shop/index/cart/index.html" class="btn btn-sm">查看购物车</a>
+                        {else} 
+                        <a class="btn btn-sm btn-danger" href="/login.html">加入购物车</a>
+                        {/if}
+                        <a href="{$product->skus[0]->file}" target="_blank" class="down-file btn btn-outline btn-outline-primary {if empty($product->skus[0]->file)}hidden{/if}">查看规格书</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row bg-white mt-3 pt-3">
+            <div class="col-12">
+                <ul class="nav nav-pills" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" role="tab" href="#product-detail-content">商品详情</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" role="tab" href="#product-comment-content">评价 (<span id="product-comment-total-count">0</span>)</a>
+                    </li>
+                </ul>
+                <hr>
+                <div class="tab-content">
+                    <div id="product-detail-content" class="tab-pane fade show active product-content" role="tabpanel">
+                        {$product->content|raw}
+                    </div>
+                    <div id="product-comment-content" class="tab-pane fade" role="tabpanel"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{/block}
+{block name="styles"}
+<link rel="stylesheet" href="/modules/shop/css/product.css">
+<style>
+    .nav-item .nav-link {
+        padding: 0px 15px;
+    }
+    .nav-item .nav-link.active {
+        color: #dc3545;
+        background: #fff !important;
+        font-weight: bold;
+    }
+    .product-comment-item {
+        padding: 15px 5px;
+        border-bottom: 1px solid #ddd;
+        font-size: 13px;
+    }
+    .product-comment-content {
+        padding: 10px 0;
+    }
+    .product-comment-image-box {
+        flex-wrap: wrap;
+    }
+    .product-comment-image {
+        padding: 2px;
+    }
+    .product-comment-image img {
+        width: 80px; height: 80px;
+        border-radius: 5px;;
+    }
+</style>
+{/block}
+{block name="scripts"}
+<script id="comment-item" type="text/html">
+    <li>
+        
+    </li>
+</script>
+<script>
+    /**
+    {php}
+    $p_list = [];
+    foreach($product->skus as $sku) {
+        $p_list[$sku->value] = ['id' => $sku->id, 'price' => $sku->price, 'stock' => $sku->stock, 'file' => $sku->file];
+    }
+    {/php}
+    */
+    Yi.ready(function() {
+        var p_list = {:json_encode($p_list)};
+        console.log(p_list);
+        function getCurrentAttr() 
+        {
+            var attrs = [];
+            $('.product-attr-item.attr-active').each(function(index, el) {
+                attrs.push($(el).text())
+            });
+            return attrs.join(',');
+        }
+        
+        $('.product-attr-item').click(function() {
+            var gid = $(this).data('gid');
+            $('.product-attr-item[data-gid=' + gid + ']').removeClass('attr-active');
+            $(this).addClass('attr-active');
+            var sku = p_list[getCurrentAttr()];
+            $('.product-price').text('￥' + sku.price)
+            $('.product-stock').text(sku.stock)
+            if (sku.file) {
+                $('.down-file').attr('href', sku.file).removeClass('hidden')
+            } else {
+                $('.down-file').addClass('hidden')
+            }
+        });
+        $('.add-cart').click(function() {
+            console.log(getCurrentAttr());
+            var sku_id = p_list[getCurrentAttr()].id;
+            var data = {
+                sku_id: sku_id, quantity: $('#quantity').val()
+            }
+            Yi.post({
+                url: '/shop/api/cart/add',
+                data: data
+            }, function() {
+                Toastr.success("加入购物车成功");
+                return false;
+            });
+        });
+        $('.product-img-list li').mouseenter(function() {
+            $('.product-img-list li').removeClass('img-active');
+            $(this).addClass('img-active')
+            $('.product-img').attr('src', $('img', this).attr('src'))
+        });
+
+        getComments();
+
+        function getComments(page = 1, success)
+        {
+            Yi.post({
+                url: '/shop/api/product/getComments',
+                loading: false,
+                data: {
+                    id: Yi.getQuery('id'), page: page
+                } 
+            }, function(data) {
+                var html = '<ul>';
+                for (var i = 0; i < data.data.length; i ++) {
+                    var item = data.data[i];
+                    var html_img = '';
+                    for (var j = 0; j < item.images.length; j ++) {
+                        var img = item.images[j];
+                        if (!img) continue;
+                        html_img += '<div class="product-comment-image"><a target="_blank" href="' + img + '"><img src="' + img + '" /></a></div>';
+                    }
+                    html += '<li class="d-flex flex-row product-comment-item"><div class="product-comment-avatar p-3"><img style="width: 44px;height: 44px;" src="' + item.user.avatar + '" /></div>' 
+                        + '<div class="product-comment-content d-flex flex-column flex-grow-1">'
+                        + '<div class="d-flex flex-row justify-content-between"><span>' + item.user.nickname + '</span><span class="text-muted text-sm">' + Yi.date(item.created_at).format('yyyy-MM-dd') +'</span></div>'
+                        + '<div class="pt-2 pb-2">' + item.content + '</div>'
+                        + '<div class="d-flex flex-row product-comment-image-box">' + html_img + '</div>'
+                        + '<div class="text-muted text-sm">购买类型：' + item.sku.keys + '</div>'
+                        + '</div></li>'
+                }
+                html += '</ul>';
+                html += '<div class="row mt-3 mb-3"><div class="m-auto">';
+                if (data.current_page > 1) html += '<a class="pointer product-comment-nav text-sm" data-page="' + (data.current_page - 1) + '">上一页</a>'
+                if (data.last_page > data.current_page) html += '<a class="pointer product-comment-nav text-sm" data-page="' + (data.current_page + 1) + '">下一页</a>'
+                html += '</div></div>'
+                $('#product-comment-content').html(html)
+                $('#product-comment-total-count').text(data.total);
+                typeof success == 'function' && success(data);
+                return false;
+            });
+        }
+        $(document).on('click', '.product-comment-nav', function() {
+            getComments($(this).data('page'))
+        })
+    });
+</script>
+{/block}

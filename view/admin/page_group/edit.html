@@ -1,0 +1,38 @@
+{extend name="admin/public/layout" /}
+{block name="content"}
+<template id="app">
+    <div>
+        {:widget('before_content')}
+        <div class="form-tab">
+            <a-tabs v-if="Object.keys(tabs).length > 1" type="card" v-model="activeTab">
+                <a-tab-pane v-for="(item,key) in tabs" :key="key" :tab="item"></a-tab-pane>
+            </a-tabs>
+        </div>
+        <a-form-model class="form" ref="ruleForm" :model="form" :rules="rules" :label-col="{span: 3}" :wrapper-col="{span: 18}">
+            {:widget('before_form_item')}
+            <div v-show="activeTab == 'base'">
+            <a-form-model-item prop='title' label='{:lang("Title")}'>
+                <a-input :placeholder='$lang(["Input", "Title"])' v-model='form.title'></a-input>
+            </a-form-model-item>
+            <a-form-model-item prop='content' label='{:lang("Content")}'>
+                <a-input :placeholder='$lang(["Input", "Content"])' v-model='form.content'></a-input>
+            </a-form-model-item>
+        </div>
+            
+            {:widget('after_form_item')}
+            <a-form-item class="fixed-bottom-btn-group" :wrapper-col="{ span: 14, offset: 4 }">
+                <a-button class="btn" :loading="btnLoading" type="primary" @click="onSubmit">{:lang('Submit')}</a-button>
+                <a-button class="btn" @click="onCancel">{:lang('Cancel')}</a-button>
+            </a-form-item>
+        </a-form-model>    
+        {:widget('after_content')}
+    </div>
+</template>
+{:widget('after_body')}
+{/block}
+{block name="style"}
+{:widget('style')}
+{/block}
+{block name="scripts"}
+{:widget('scripts')}
+{/block}

@@ -1,0 +1,25 @@
+
+<a-form-model-item prop="rules" label="区域">
+    <table class="table">
+        <thead>
+            <tr>
+                <th width="40%">配送区域</th><th>首重/件价格</th><th>续重/件价格</th><th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(item, index) in form.rules" :key="index">
+                <td class="pointer" @click="handleEditArea(index, item)">{{item.area_names.join(',')}}</td>
+                <td style="padding: 0 5px;"><a-input v-model="item.first_price"></a-input></td>
+                <td style="padding: 0 5px;"><a-input v-model="item.rest_price"></a-input></td>
+                <td><a-button type="danger" @click="handleDelRule(index)">删除</a-button></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3">
+                    <a @click="handleAddRule">+添加运费规则</a>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</a-form-model-item>

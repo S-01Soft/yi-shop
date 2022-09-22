@@ -1,0 +1,15 @@
+.y-modal .modal-title {
+    padding: 12px 0;
+    background: #312b2b;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    color: #fff;
+}
+.y-modal .modal-body {
+    padding: 20px 20px;
+}
+
+.y-modal .y-modal-footer {
+    text-align: right;
+    padding: 10px;
+}

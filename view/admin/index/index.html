@@ -1,0 +1,75 @@
+{extend name="admin/public/layout" /}
+{block name="content"}
+<template id="app">
+    <div>
+        <a-row>
+
+        </a-row>
+        <a-row>
+            <a-col :xs="{span: 12}" :md="{span: 6}" :lg="{span: 4}" v-for="(item,index) in data.list" :key="index">
+                <div style="padding: 5px;">
+                    <div class="d-item">
+                        <p class="text-center" style="font-size:15px;font-weight: 700;">{{item.title}}</p>
+                        <div class="text-center">{{item.start}}</div>
+                        <div class="text-center">{{item.end}}</div>
+                        <table>
+                            <tr>
+                                <td></td><td>订单数</td><td>订单金额</td>
+                            </tr>
+                            <tr>
+                                <td>已支付</td><td>{{item.is_pay.count}}</td><td>￥{{item.is_pay.money}}</td>
+                            </tr>
+                            <tr>
+                                <td>未支付</td><td>{{item.no_pay.count}}</td><td>￥{{item.no_pay.money}}</td>
+                            </tr>
+                            <tr>
+                                <td>总计</td><td>{{item.total.count}}</td><td>￥{{item.total.money}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </a-col>
+        </a-row>
+        <a-row class="bg-white" style="padding: 10px;">
+            
+            <a-col :span="24" style="margin: 10px 0;">
+                <div>
+                    <yi-date-picker v-model="form.start" style="display: inline-block;"></yi-date-picker>
+                    <span> - </span>
+                    <yi-date-picker v-model="form.end" style="display: inline-block;"></yi-date-picker>
+                    <a-button type="danger" @click="handleRefresh">{:lang('Refresh')}</a-button>
+                </div>
+            </a-col>
+
+            <a-col :span="24">
+                <div id="chart-section" style="height: 400px;"></div>
+            </a-col>
+        </a-row>
+    </div>
+</template>
+{/block}
+{block name="style"}
+{:widget('style')}
+<style>
+    .bg-white {
+        background-color: #fff;
+    }
+    .d-item {
+        border: 1px solid #ddd;padding: 10px 0;border-radius: 5px;
+        background-color: #fff;
+    }
+    table {
+        width: 100%;
+    }
+    table td{
+        text-align: center;
+        padding: 5px 0;
+    }
+    .text-gray {
+        color: #999;
+    }
+</style>
+{/block}
+{block name="scripts"}
+{:widget('scripts')}
+{/block}

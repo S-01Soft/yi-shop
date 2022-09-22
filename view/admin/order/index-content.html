@@ -1,0 +1,43 @@
+<a-modal title="发货" v-model="ship.show" @ok="doShip">
+    <a-form>
+        <a-form-item label="快递公司">
+            <yi-select v-model="express_code" url="/shop/admin/express/all" label-field="name" value-field="code"></yi-select>
+        </a-form-item>
+        <a-form-item label="快递单号">
+            <a-input v-model="express_no"></a-input>
+        </a-form-item>
+    </a-form>
+</a-modal>
+
+<a-modal title="确定付款金额" v-model="showPayWindow" @ok="pay">
+    <a-form>
+        <a-form-item label="付款金额">
+            <a-input v-model="pay_money"></a-input>
+        </a-form-item>
+    </a-form>
+</a-modal>
+
+<a-modal title="退款" v-model="refund.visible" @ok="doRefund">
+    <a-form>
+        <a-form-item label="退款金额">
+            <template slot="extra">
+                <span>返还余额：{{currentOrder.money_price}}元，返还积分：{{currentOrder.use_score}}</span>
+            </template>
+            <a-input v-model="refund.form.price"></a-input>
+        </a-form-item>
+        <a-form-item label="备注">
+            <a-textarea v-model="refund.form.remark"></a-textarea>
+        </a-form-item>
+        <a-form-item label="是否关闭订单">
+            <a-switch v-model="refund.form.close"></a-switch>
+        </a-form-item>
+    </a-form>
+</a-modal>
+
+<a-modal title="拒绝售后" v-model="reject.visible" @ok="doReject">
+    <a-form>
+        <a-form-item label="拒绝原因">
+            <a-textarea v-model="reject.form.after_saler_remark"></a-textarea>
+        </a-form-item>
+    </a-form>
+</a-modal>

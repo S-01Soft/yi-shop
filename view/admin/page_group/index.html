@@ -1,0 +1,152 @@
+{extend name="admin/public/layout" /}
+{block name="style"}
+<link rel="stylesheet" href="/modules/shop/css/iconfont.css">
+<style>
+    .mask {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 5999;
+    }
+
+    body {
+        min-height: 100vh;
+    }
+
+    .mask {
+        display: flex;
+        justify-content: center;
+    }
+
+    .mask .op-box {
+        /* position: fixed; */
+        margin-top: 150px;
+    }
+
+    .op-btn {
+        margin: 25px 0;
+        padding: 5px 30px;
+        color: #fff;
+        border: 1px solid #fff;
+        border-radius: 15px;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-danger {
+        background-color: #bd2130;
+        border-color: #bd2130;
+    }
+
+    .btn-primary {
+        background-color: #0062cc;
+        border-color: #0062cc;
+    }
+
+    .btn-dark {
+        background-color: #2c3e50;
+        border-color: #2c3e50;
+    }
+
+    .add-new-temp {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .phone-frame {
+        margin: 5px 0;
+    }
+
+    .active-template .head-box {
+        border-top: 2px solid rgb(245, 3, 3);
+        border-right: 2px solid rgb(245, 3, 3);
+        border-left: 2px solid rgb(245, 3, 3);
+    }
+
+    .active-template .body-box {
+        border-right: 2px solid rgb(245, 3, 3);
+        border-left: 2px solid rgb(245, 3, 3);
+    }
+
+    .active-template .footer-box {
+        border-right: 2px solid rgb(245, 3, 3);
+        border-left: 2px solid rgb(245, 3, 3);
+        border-bottom: 2px solid rgb(245, 3, 3);
+    }
+
+    .active-template .template_title {
+        color: rgb(245, 3, 3);
+        font-weight: 700;
+    }
+
+    [v-cloak] {
+        display: none;
+    }
+</style>
+{/block}
+{block name="content"}
+<template id="app">
+    <div>
+        <div class="row" style="margin-bottom: 10px;">
+            <div class="container">
+                <a-button type="primary" @click="handleShowAddTemplate">新建模板</a-button>
+                <a-button type="primary"><a href="/shop/admin/index/down" target="_blank">下载前端文件</a></a-button>
+            </div>
+        </div>
+        <a-row :gutter="16">
+            <a-col :xs="{span: 24}" :md="{span: 6}" v-for="(template, i) in groups" :key="i" style="display: flex; flex-direction: column; align-items: center;">
+                <div class="text-center pointer" title="修改模板名称" @click="handleShowEditTemplate(template)">{{template.title}} <b v-if="template.is_default" style="color:#bd2130">【默认】</b> </div>
+                <span>页面ID:{{template.content[tplData[template.id].activeTab]}}</span>
+                <shop-phone-frame style="padding: 12px;width: 297px;height: 603px;" :body-style="{height: '499px',overflowY: 'hidden', background: tplData.options[template.content[tplData[template.id].activeTab]] ? tplData.options[template.content[tplData[template.id].activeTab]].option.background : '#f5f5f5'}" body-height='625px'>
+                    <div slot="body" @mouseover="activeTmp = template.id" style="position: relative;min-height: 100%;"
+                        @mouseleave="activeTmp = null">
+                        <div v-if="tplData.options[template.content[tplData[template.id].activeTab]]">
+                            <div class="pcomment-item" v-for="(item, index) in tplData.options[template.content[tplData[template.id].activeTab]].list"
+                            :key="index">
+                                <component :is="item.type" :option="item.option" class="card"></component>
+                            </div>
+                        </div>
+                        <div class="mask" v-show="template.id == activeTmp">
+                            <div class="op-box">
+                                <div v-if="template.content[tplData[template.id].activeTab]">
+                                    <div v-if="template.is_default == 0" class="op-btn btn-dark" @click="useTemplate(template.id)">设为默认</div>
+                                    <div class="op-btn btn-dark" @click="editTemplate(template)">设计页面</div>
+                                    <div class="op-btn btn-success" @click="handleBindPage(template,i)">绑定页面</div>
+                                    <div class="op-btn btn-danger" @click="delTemplate(template.id, i)">删除模板</div>
+                                </div>
+                                <div v-else>
+                                    <div class="op-btn btn-success" @click="handleBindPage(template,i)">绑定页面</div>
+                                    <div class="op-btn btn-danger" @click="delTemplate(template.id, i)">删除模板</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div slot="footer" style="margin-top: 10px;">
+                        <a-tag class="pointer" :color="tplData[template.id].activeTab == 'home' ? 'pink' : '#bbb'"
+                            @click="tplData[template.id].activeTab='home'">首页</a-tag>
+                        <a-tag class="pointer" :color="tplData[template.id].activeTab == 'user' ? 'pink' : '#bbb'"
+                            @click="tplData[template.id].activeTab='user'">个人中心</a-tag>
+                    </div>
+                </shop-phone-frame>
+            </a-col>
+            <a-empty v-if="groups.length == 0"></a-empty>
+        </a-row>
+        <a-modal v-model="tpl.show" title="请输入模板名称" @ok="handleEditTemplate">
+            <a-input v-model="tpl.form.title"></a-input>
+        </a-modal>
+    </div>
+</template>
+{/block}
+{block name="scripts"}
+
+{:widget('scripts')}
+{/block}

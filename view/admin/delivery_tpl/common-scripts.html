@@ -1,0 +1,47 @@
+<script>
+    Yi.vue.mixin({
+        methods: {
+            handleAddRule: function() {
+                var self = this;
+                if (!this.form.rules) this.$set(this.form, 'rules', []);
+                this.chooseArea(function(data) {
+                    self.form.rules.push(data);
+                });
+            },
+            handleDelRule: function(index) {
+                this.form.rules.splice(index);
+            },
+            handleEditArea: function(index, item) {
+                var self = this;
+                this.chooseArea(function(data) {
+                    item.area_ids = data.area_ids;
+                    item.area_names = data.area_names;
+                    self.$set(self.form.rules, index, item);
+                })
+            },
+            chooseArea: function(cb) {
+                var self = this;
+                Yi.open({
+                    title: '选择配送区域',
+                    content: 'city_selector'
+                }, function(data) {
+                    var area_ids = [];
+                    var area_names = [];
+                    for (var i = 0; i < data.length; i ++) {
+                        area_ids.push(data[i].id);
+                        area_names.push(data[i].name);
+                    }
+                    
+                    cb && cb({
+                        area_ids: area_ids,
+                        area_names: area_names,
+                        first_price: 0,
+                        rest_price: 0
+                    });
+                });
+            }
+        }
+    });
+    
+    
+</script>

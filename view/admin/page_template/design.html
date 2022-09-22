@@ -1,0 +1,287 @@
+{extend name="admin/public/layout" /}
+{block name="content"}
+
+<template id="app">
+    <div>
+        <div style="float: right;">
+            <a-button type="primary" @click="save">保存</a-button>
+            <a-button type="danger" @click="saveAndExit">保存并关闭</a-button>
+        </div>
+
+        <div class="content" style="width: 100%;">
+            <div style="min-height: 670px;">
+                <div class="compnents-box">
+                    <div v-for="(group, i) in componentList" :key="i" class="com-group">
+                        <div class="groupname">{{group.title}}</div>
+                        <div class="list">
+                            <div class="item" v-for="(item, index) in group.list"
+                                @click="componentClick(item, index)" :key="index">
+                                <div class="item-con">
+                                    <div class="img">
+                                        <img :src="item.img" :alt="item.title" style="width: 100%;height: 100%;">
+                                    </div>
+                                    <div class="title">
+                                        {{item.title}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pcomment-box">
+                    <shop-phone-frame :body-height="'620px'" :body-style="{background: content.option.background, overflowY: 'scroll'}">
+                        <div slot="head">
+                            <p @click="handlePageHeadClick" class="text-center" style="line-height: 32px;margin: 0;font-weight: 700;cursor:default;">
+                                {{content.option.title || '请设置标题'}}
+                            </p>
+                        </div>
+                        <div slot="body" class="list">
+                            <vuedraggable v-model="content.list" @start="handleDragStart" @end="handleDragEnd">
+                                <div class="item pcomment-item"
+                                    :class="{'is-collapsed': extendData[index] && extendData[index].is_collapsed}"
+                                    v-for="(item, index) in content.list" :key="index" @click="itemClick(item, index)"
+                                    @mouseover="handleMouseOver(item, index)" @mouseleave="handleMouseLeave(item, index)">
+                                    <component :is="item.type" :option="item.option"
+                                        :class="{'active-box': activeIndex == index}" class="card"></component>
+                                    <div class="mask" v-show="overIndex == index">
+                                        <div class="operate-box">
+                                            <span @click.stop="handleCollapseClick(index)"
+                                                v-if="extendData[index] && extendData[index].height >= 150"> <i title="展开"
+                                                    class="fa fa-chevron-down"
+                                                    v-if="extendData[index] && extendData[index].is_collapsed"></i>
+                                                <i title="收起" class="fa fa-chevron-up" v-else></i> </span>
+                                           
+                                            <a-icon @click.stop="deleteHandle(index)" style="color: red;padding: 0 5px;" title="移除" type="delete"></a-icon>
+                                        </div>
+                                        <div @click.stop="handleCollapseClick(index)"
+                                            v-if="extendData[index] && extendData[index].is_collapsed"
+                                            style="position: absolute;bottom: 3px;width: 100%;text-align: center;color: #ddd;background: #aaa;cursor: default;">
+                                            内容已折叠，点击展开
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </vuedraggable>
+                        </div>
+                    </shop-phone-frame>
+                </div>
+                <div class="setting-box">
+                    <p class="text-center" style="font-weight: 700;">参数设置
+                        <span style="font-weight: 700; color: #a90808;" v-if="content.list[activeIndex]">
+                            [{{content.list[activeIndex].title}}]</span>
+                    </p>
+
+                    <component v-if="!pageSet && content.list[activeIndex] && content.list[activeIndex].type"
+                        :is="content.list[activeIndex].type + '-setting'" @change="handleSettingChange" v-model="option">
+                    </component>
+                    <page-setting v-if="pageSet" v-model="content.option">
+                    </page-setting>
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+</template>
+{/block}
+{block name="scripts"}
+
+{:widget('scripts')}
+{/block}
+{block name="style"}
+<link rel="stylesheet" href="/modules/shop/css/iconfont.css">
+<style>
+    ::-webkit-scrollbar-track-piece {
+        background-color: #f8f8f8;
+    }
+
+    ::-webkit-scrollbar {
+        width: 0px;
+        height: 9px;
+        border-radius: 2px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #dddddd;
+        background-clip: padding-box;
+        min-height: 28px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #bbb;
+    }
+
+    .clear::after {
+        content: " ";
+        clear: both;
+        display: block;
+    }
+
+    .float-box {
+        float: left;
+        margin: 0 2px;
+    }
+
+    .float-box::after {
+        content: "";
+        clear: both;
+    }
+
+    .active-box {
+        border: 1px solid rgb(243, 7, 27) !important;
+    }
+
+    /*组件区*/
+    .compnents-box {
+        display: inline-block;
+        white-space: normal;
+        width: 250px;
+        position: absolute;
+    }
+
+    .compnents-box .com-group {
+        margin-bottom: 15px;
+        border: 0.5px solid #bce8ff;
+        border-radius: 5px;
+    }
+
+    .compnents-box .com-group .list {
+        padding: 5px;
+    }
+
+    .compnents-box .groupname {
+        background-color: #f0faff;
+        color: #222;
+        padding: 10px 10px;
+        font-size: 15px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .compnents-box .item {
+        width: 33.33%;
+        display: inline-block;
+        text-align: center;
+        /* border: 1px solid #c5a3a3;
+        border-left: none; */
+        cursor: pointer;
+        background: #fff;
+        padding: 3px;
+    }
+
+    .compnents-box .item:nth-child(4n+1) {
+        /* border-left: 1px solid #c5c5c5; */
+    }
+
+    .compnents-box .item:nth-child(n+5) {
+        border-top: none;
+    }
+
+    .compnents-box .item .item-con {
+        background-color: #f4f4f4;
+        border-radius: 5px;
+        padding: 5px 0;
+        border: 1px solid #ddd;
+    }
+
+    .compnents-box .item .item-con:hover {
+        background-color: #dcdcdc;
+    }
+
+    .compnents-box .item .img {
+        margin: 0 auto;
+        width: 30px;
+        height: 30px;
+        margin-top: 5px;
+        text-align: center;
+    }
+
+    .compnents-box .item .title {
+        margin-top: 2px;
+        font-size: 13px;
+    }
+
+    .pcomment-box {
+        width: 480px;
+        position: absolute;
+        left: 300px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .pcomment-box .pcomment-operate {
+        margin: -90px -50px 0 -35px;
+        padding: 0 60px;
+        transform: scale(1, 1);
+        -ms-transform: scale(1, 1);
+        -webkit-transform: scale(1.2, 1.2);
+    }
+
+    .pcomment-box .item {
+        position: relative;
+    }
+
+    .pcomment-box .is-collapsed {
+        max-height: 150px;
+        overflow: hidden;
+    }
+
+    /*设置区*/
+    .setting-box {
+        margin-left: 800px;
+    }
+
+    .setting-box .ant-tabs-content {
+        max-height: 480px;
+        overflow: auto;
+    }
+
+    .mask {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 5999;
+    }
+
+    .mask .operate-box span {
+        cursor: pointer;
+        margin: 0 5px;
+    }
+
+    .mask .operate-box {
+        float: right;
+        background: #fff;
+        margin: 1px 1px 0 0;
+    }    
+    .shop-drag-item {
+        position: relative;
+        border: 1px dotted #ddd;
+        border-radius: 5px;
+        padding: 5px;
+        margin: 5px 0;
+    }
+    .shop-drag-item:hover {
+        border-color: red;
+    }
+</style>
+<style>
+    .table th {
+        text-align: center;
+    }
+
+    .table .no-border {
+        height: 32px;
+        border: none;
+        padding: 0 5px;
+    }
+    .table .no-border:focus {
+        border:none;
+    }
+    .table .no-border:active {
+        border: none;
+    }
+</style>
+{:widget('styles')}
+{/block}

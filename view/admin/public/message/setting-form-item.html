@@ -1,0 +1,5 @@
+<a-form-item label="商城自定义跳转" v-show="form.type && form.type.indexOf('shop') != -1">
+    <div style="padding-top: 10px;">
+        <shop-jump v-model="shopData.params"></shop-jump>
+    </div>
+</a-form-item>

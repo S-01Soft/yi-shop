@@ -1,0 +1,9 @@
+<script>
+    Yi.event.on(EventPrefix + 'Columns', function(data) {
+        var show = 'id,title,description,image,category.name,action$'.split(',');
+        for (var i = 0; i < data.length; i ++) {
+            if (show.indexOf(data[i].key) == -1) data[i].visible = false;
+        }
+        return data;
+    })
+</script>

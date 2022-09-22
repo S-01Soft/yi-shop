@@ -1,0 +1,11 @@
+<template slot="expandedRowRender" slot-scope="row">
+    <div style="display: flex;">
+        <div v-for="(item,index) in row.products" :key="index" style="width: 100px;display: flex; flex-direction: column;padding: 5px;">
+            <div>
+                <img :src="item.image" style="width: 100%;">
+            </div>
+            <div class="text-center line-1">{{item.title}}</div>
+            <div class="text-center line-1">￥ {{item.price}} × {{item.quantity}}</div>
+        </div>
+    </div>
+</template>

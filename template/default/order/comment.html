@@ -1,0 +1,119 @@
+
+{extend name="cms/public/base" /}
+{block name="content"}
+<main id="mainbody">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 user-menu">
+                {include file="cms/user/menu" /}
+            </div>
+            <div class="col-md-9 user-content">
+                <h3>商品评价</h3>
+                <hr>
+                <div>
+                    
+                <form class="form"
+                    action=""
+                    onsubmit="return false">
+                    <div class="form-group row">
+                        <label for="content" class="col-md-2 col-form-label">宝贝评分：</label>
+                        <div class="col-md-8">
+                            <div class="product-comment-star">
+                                <span class="far fa-heart comment-star comment-star-active" data-value="1"></span>
+                                <span class="far fa-heart comment-star comment-star-active" data-value="2"></span>
+                                <span class="far fa-heart comment-star comment-star-active" data-value="3"></span>
+                                <span class="far fa-heart comment-star comment-star-active" data-value="4"></span>
+                                <span class="far fa-heart comment-star comment-star-active" data-value="5"></span>
+                                <input type="hidden" name="form[star]" value="5" />
+                            </div>
+                        </div>
+                    </div>   
+                    <div class="form-group row">
+                        <label for="content" class="col-md-2 col-form-label">评价内容：</label>
+                        <div class="col-md-8">
+                            <textarea name="form[content]" id="content" cols="30" rows="2"
+                                class="form-control"></textarea>
+                        </div>
+                    </div>                    
+                    <div class="form-group row">
+                        <label for="images" class="col-md-2 col-form-label">上传图片：</label>
+                        <div class="col-md-8 web-uploader">
+                            <div class="input-group">
+                                <input class="form-control web-uploader-input" type="text" id="images" name="form[images]"
+                                    value="">
+                                <div class="input-group-append">
+                                    <div class="btn-upload" data-max="9" data-server="/shop/api/user/upload"
+                                        data-accept='{"title": "Images","mimeTypes": "image/png,image/jpeg,image/bmp,image/webp"}'>
+                                        上传</div>
+                                </div>
+                            </div>
+                            <div class="file-list"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="content" class="col-md-2 col-form-label"></label>
+                        <div class="col-md-10">
+                            <button type="button" class="btn btn-danger pr-4 pl-4 submit">提交</button>
+                        </div>
+                    </div>
+                </form>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+</main>
+{/block}
+
+{block name="styles"}
+<link rel="stylesheet" href="__CMS_THEME__css/user.css">
+<link rel="stylesheet" href="/modules/shop/css/common.css">
+<style>
+    .product-comment-star {
+        height: 40px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+    .comment-star {
+        font-size: 16px;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+    .comment-star-active {
+        color: #ff4169;
+    }
+</style>
+{/block}
+
+{block name="scripts"}
+
+<script>
+    Yi.ready(function () {
+        function renderStar() {
+            var v = $("input[name=\"form[star]\"]").val();
+            $('.comment-star').each(function(i, e) {
+                if ($(e).data('value') <= v) $(e).addClass('comment-star-active');
+                else $(e).removeClass('comment-star-active');
+            })
+        }
+        $(document).on('click', '.comment-star', function() {
+            $("input[name=\"form[star]\"]").val($(this).data('value'));
+            renderStar();
+        })
+        var Formatter = require('formatter');
+        var form = $('form.form');
+        var Event = Formatter.event;
+        Event.on('form.success', function () {
+            Toastr.success('操作成功');
+            location.href = '{:request()->header("referer")}';
+        });
+        
+        // Event.on('uploader.init', function(el, uploader, File) {
+        //     window.uploader = uploader; window.uploaderFile = File;
+        // })
+        Formatter.render(form);
+    });
+</script>
+{/block}

@@ -1,0 +1,8 @@
+<script>
+    Yi.event.on(EventPrefix + 'Columns', function(data) {
+        Yi.util.find(data, {key: 'parent.name'}, function(item) {
+            item.visible = false;
+        });
+        return data;
+    })
+</script>

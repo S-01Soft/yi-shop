@@ -1,0 +1,21 @@
+<script>
+    Yi.event.on(EventPrefix + 'Columns', function(data) {
+        Yi.util.find(data, {key: 'title'}, function(item) {
+            item.search = {type: 'input', value: null, s: 'like'};
+        })
+        Yi.util.insertAfter(data, {key: 'description'}, {
+            title: '分类', dataIndex: 'categories', key: 'categories', customRender: function(val, row, index, column) {
+                var el = '<div>';
+                for (var i = 0; i < val.length; i ++) {
+                    el += '<span class="ant-tag ant-tag-blue" style="margin: 0 3px;">' + val[i].name + '</span>'
+                }
+                el += '</div>';
+                return Yi.render.html(val, row, index, column, el);
+            },
+            search: {type: 'remoteSelect', value: null, s: 'in', option: {
+                url: '/shop/admin/article_category/tree_list?type=1', labelField: 'name', valueField: 'id', mode: 'multiple'
+            }}
+        })
+        return data;
+    })
+</script>

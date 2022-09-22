@@ -1,0 +1,9 @@
+<div class="product-item mt-2">
+    <a href="/shop/index/product/info?id={$params['product']->id}">
+        <div class="m-auto product-item-image">
+            <img style="width: 100%;height: 100%;" src="{$params['product']->image[0]}" />
+        </div>
+        <div class="product-price">￥{$params['product']->skus[0]->price}</div>
+        <div class="line-2 product-title text-sm" title="{$params['product']->title}">{$params['product']->title}</div>
+    </a>
+</div>

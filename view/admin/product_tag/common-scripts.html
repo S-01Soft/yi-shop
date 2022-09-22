@@ -1,0 +1,50 @@
+<script>
+    Yi.event.on(EventPrefix + 'Data', function(data) {
+        data.products = [];
+        data.form.products = [];
+        data.columns = [
+            { title: '标题', dataIndex: 'title', key: 'title', width: '350px' , customRender: function(val, row, index, column) {
+                var el = '<div style="width: 350px;"><div class="line-1">' + val + '</div><div class="line-1">' + row.description + '</div>';
+                return Yi.render.html(val, row, index, column, el);
+            }},
+            { title: '图片', dataIndex: 'image', key: 'image', align: 'center', customRender: Yi.render.image },
+            { title: '操作', key: 'action$', align: 'center', scopedSlots: { customRender: 'action' } }
+        ];
+        return data;
+    });
+    Yi.event.on(EventPrefix + 'Init', function(data) {
+        console.log(data)
+        $vm.products = data.products;
+        var result = [];
+        for (var i = 0; i < data.products.length; i ++) {
+            result.push(data.products[i].id);
+        }
+        data.products = result;
+        return data;
+    });
+    Yi.vue.mixin({
+        methods: {
+            handleChooseProduct: function() {
+                var self = this;
+                Yi.open({
+                    title: '选择商品',
+                    content: '/shop/admin/product/select?multiple=true'
+                }, function(res) {
+                    self.products = self.mergeProducts(self.products, res.data.rows);
+                    self.form.products = Yi.arrayColumn(self.products, 'id');
+                });
+            },
+            handleDelete: function(row, index, val, column) {
+                this.products.splice(index, 1);
+                this.form.products = Yi.arrayColumn(this.products, 'id');
+            },
+            mergeProducts: function(rows1, rows2) {
+                var keys = Yi.arrayColumn(rows1, 'id');
+                for (var i = 0; i < rows2.length; i ++) {
+                    if (keys.indexOf(rows2[i].id) == -1) rows1.push(rows2[i])
+                }
+                return rows1;
+            }
+        }
+    });
+</script>

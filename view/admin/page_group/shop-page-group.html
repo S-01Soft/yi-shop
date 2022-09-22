@@ -1,0 +1,34 @@
+<template id="shop-page-group">
+    <div>
+        <div>主页</div>
+        <div>个人中心</div>
+        <div class="input-group">
+            <a-input class="form-control"></a-input>
+            <div class="input-group-append">
+              <a-button @click="handleChoosePage">选择</a-button>
+            </div>
+        </div>
+    </div>
+</template>
+<script>
+    Yi.ready(function() {
+        Vue.component('shop-page-group', {
+            template: '#shop-page-group',
+            props: {
+                value: {
+                    default: {}
+                }
+            },
+            data: function() {
+                return {
+
+                };
+            },
+            methods: {
+                handleChoosePage: function() {
+
+                }
+            }
+        });
+    })
+</script>

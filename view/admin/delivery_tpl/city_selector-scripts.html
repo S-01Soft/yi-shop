@@ -1,0 +1,57 @@
+<script>
+    var city_selector = function() {
+        var self;
+        var option = {
+            el: '#app',
+            data: function() {
+                return {
+                    form: {
+                        area: []
+                    },
+                    area: []
+                }
+            },
+            mounted: function() {
+                self = this;
+                this.init();
+            },
+            methods: {
+                init: function() {
+                    this.$http.get('city_selector').then(function(data) {
+                        self.area = [
+                            {
+                                id: 0, name: '全国', childlist: data
+                            }
+                        ]
+                    })
+                },
+                getChooseData: function(list, data, result) {
+                    for (var i = 0; i < list.length; i ++) {
+                        var item = list[i];
+                        if (data.indexOf(item.id) != -1) {
+                            delete item.childlist;
+                            result.push(item);
+                        }
+                        else {
+                            this.getChooseData(item.childlist, data, result);
+                        }
+                    }
+                    return result;
+                },
+                onSubmit: function() {
+                    var result = [];
+                    Yi.closeSelf(this.getChooseData(this.area, this.form.area, result));
+                },
+                onCancel: function() {
+                    Yi.closeSelf();
+                }
+            }
+        };
+        return option;
+    }
+    
+    Yi.event.on('ShopAdminDeliveryTplCitySelectorAction', function(Action) {
+        Action.city_selector = city_selector;
+        return Action;
+    });
+</script>

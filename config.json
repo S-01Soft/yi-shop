@@ -1,0 +1,405 @@
+{
+    "template_pages": {
+        "group_key": "base",
+        "group": "基本",
+        "name": "template_pages",
+        "alias": "template_pages",
+        "type": "hidden",
+        "value": "manifest.json,pages.json,common\/config.js,components\/i-page\/i-page.vue"
+    },
+    "__APP_NAME__": {
+        "group_key": "base",
+        "group": "基本",
+        "name": "__APP_NAME__",
+        "alias": "app_name",
+        "is_replace": 1,
+        "frontend": 1,
+        "title": "应用名称",
+        "type": "string",
+        "options": [],
+        "value": "某某商城",
+        "tip": ""
+    },
+    "__H5_ROUTE_MODE__": {
+        "group_key": "base",
+        "group": "基本",
+        "name": "__H5_ROUTE_MODE__",
+        "alias": "h5_route_mode",
+        "title": "H5路由模式",
+        "type": "select",
+        "frontend": 1,
+        "is_replace": 1,
+        "options": {
+            "hash": "hash",
+            "history": "history"
+        },
+        "value": "hash",
+        "tip": ""
+    },
+    "__H5_BASE_PATH__": {
+        "group_key": "base",
+        "group": "基本",
+        "name": "__H5_BASE_PATH__",
+        "alias": "h5_base_path",
+        "title": "H5运行的基础路径",
+        "type": "string",
+        "frontend": 1,
+        "is_replace": 1,
+        "options": [],
+        "value": "\/h5\/",
+        "tip": "例如\/h5\/,代表在域名的\/h5\/目录下部署运行"
+    },
+    "__DOMAIN__": {
+        "group_key": "base",
+        "group": "基本",
+        "name": "__DOMAIN__",
+        "alias": "domain",
+        "title": "H5部署域名",
+        "type": "string",
+        "frontend": true,
+        "is_replace": 1,
+        "options": [],
+        "value": "",
+        "tip": "例如：https:\/\/www.yoursite.com。"
+    },
+    "cat_mode": {
+        "group_key": "category",
+        "group": "分类",
+        "title": "分类模式",
+        "name": "cat_mode",
+        "alias": "cat_mode",
+        "type": "select",
+        "frontend": 1,
+        "options": {
+            "1": "一级分类",
+            "2": "二级分类",
+            "3": "三级分类"
+        },
+        "value": "1",
+        "tip": ""
+    },
+    "express_open": {
+        "group_key": "express",
+        "group": "物流",
+        "title": "物流查询",
+        "name": "express_open",
+        "alias": "express_open",
+        "type": "radio",
+        "frontend": 1,
+        "options": [
+            "关闭",
+            "开启"
+        ],
+        "value": 1,
+        "tip": ""
+    },
+    "stock_type": {
+        "group_key": "order",
+        "group": "订单",
+        "title": "默认何时减库存",
+        "name": "stock_type",
+        "alias": "stock_type",
+        "type": "radio",
+        "options": {
+            "1": "付款减库存",
+            "2": "下单减库存"
+        },
+        "value": "1",
+        "tip": "每个商品可单独设置何时减库存"
+    },
+    "order_life": {
+        "group_key": "order",
+        "group": "订单",
+        "title": "订单过期时间",
+        "name": "order_life",
+        "alias": "order_life",
+        "type": "number",
+        "options": {
+            "step": 1
+        },
+        "frontend": 1,
+        "value": 30,
+        "tip": "订单付款限制时间（分钟），超时取消订单，0表示不限制。"
+    },
+    "score_to_money": {
+        "group_key": "order",
+        "group": "订单",
+        "title": "积分兑换人民币比例",
+        "name": "score_to_money",
+        "alias": "score_to_money",
+        "frontend": 1,
+        "type": "number",
+        "options": {
+            "step": 1
+        },
+        "value": "100",
+        "tip": "积分抵扣时多少积分兑1元人民币"
+    },
+    "auto_receive_time": {
+        "group": "订单",
+        "group_key": "order",
+        "name": "auto_receive_time",
+        "alias": "auto_receive_time",
+        "title": "自动收货时间",
+        "type": "number",
+        "options": [],
+        "value": 168,
+        "placeholder": "",
+        "tip": "发货后多长时间（小时）自动收货"
+    },
+    "search_engine": {
+        "group": "搜索",
+        "group_key": "search",
+        "name": "search_engine",
+        "alias": "engine",
+        "title": "搜索引擎",
+        "type": "radio",
+        "options": {
+            "mysql": "Mysql",
+            "es": "Elasticsearch"
+        },
+        "value": "mysql",
+        "placeholder": "",
+        "tip": ""
+    },
+    "search_index": {
+        "group": "搜索",
+        "group_key": "search",
+        "name": "search_index",
+        "alias": "index",
+        "title": "索引",
+        "type": "string",
+        "options": [],
+        "value": "shop",
+        "placeholder": "",
+        "tip": ""
+    },
+    "agreement_user": {
+        "group": "协议相关",
+        "group_key": "agreement",
+        "name": "agreement_user",
+        "alias": "user_agreement",
+        "frontend": 1,
+        "title": "用户协议",
+        "type": "remoteSelect",
+        "options": {
+            "labelField": "title",
+            "valueField": "id",
+            "url": "\/shop\/admin\/article\/index",
+            "paginate": "1",
+            "allowClear": true
+        },
+        "value": "",
+        "placeholder": "",
+        "tip": ""
+    },
+    "agreement_privacy": {
+        "group": "协议相关",
+        "group_key": "agreement",
+        "name": "agreement_privacy",
+        "alias": "privacy_agreement",
+        "frontend": 1,
+        "title": "隐私政策",
+        "type": "remoteSelect",
+        "options": {
+            "labelField": "title",
+            "valueField": "id",
+            "url": "\/shop\/admin\/article\/index",
+            "paginate": "1",
+            "allowClear": true
+        },
+        "value": "",
+        "placeholder": "",
+        "tip": ""
+    },
+    "third_scene": {
+        "group": "第三方登录",
+        "group_key": "third",
+        "name": "third_scene",
+        "alias": "scene",
+        "title": "场景",
+        "frontend": 1,
+        "type": "string",
+        "value": "default",
+        "placeholder": "",
+        "tip": ""
+    },
+    "template_H5": {
+        "group": "模板",
+        "group_key": "template",
+        "name": "template_H5",
+        "alias": "H5",
+        "title": "H5",
+        "type": "remoteSelect",
+        "options": {
+            "labelField": "title",
+            "valueField": "id",
+            "url": "\/shop\/admin\/page_group\/index",
+            "paginate": "1",
+            "allowClear": true
+        },
+        "value": null,
+        "placeholder": "",
+        "tip": "不填则使用默认模板"
+    },
+    "template_WX-H5": {
+        "group": "模板",
+        "group_key": "template",
+        "name": "template_WX-H5",
+        "alias": "WX-H5",
+        "title": "微信公众号",
+        "type": "remoteSelect",
+        "options": {
+            "labelField": "title",
+            "valueField": "id",
+            "url": "\/shop\/admin\/page_group\/index",
+            "paginate": "1",
+            "allowClear": true
+        },
+        "value": "",
+        "placeholder": "",
+        "tip": "同上"
+    },
+    "template_MP-WEIXIN": {
+        "group": "模板",
+        "group_key": "template",
+        "name": "template_MP-WEIXIN",
+        "alias": "MP-WEIXIN",
+        "title": "微信小程序",
+        "type": "remoteSelect",
+        "options": {
+            "labelField": "title",
+            "valueField": "id",
+            "url": "\/shop\/admin\/page_group\/index",
+            "paginate": "1",
+            "allowClear": true
+        },
+        "value": "",
+        "placeholder": "",
+        "tip": "同上"
+    },
+    "template_MP-ALIPAY": {
+        "group": "模板",
+        "group_key": "template",
+        "name": "template_MP-ALIPAY",
+        "alias": "MP-ALIPAY",
+        "title": "支付宝小程序",
+        "type": "remoteSelect",
+        "options": {
+            "labelField": "title",
+            "valueField": "id",
+            "url": "\/shop\/admin\/page_group\/index",
+            "paginate": "1",
+            "allowClear": true
+        },
+        "value": "",
+        "placeholder": "",
+        "tip": "同上"
+    },
+    "template_MP-TOUTIAO": {
+        "group": "模板",
+        "group_key": "template",
+        "name": "template_MP-TOUTIAO",
+        "alias": "MP-TOUTIAO",
+        "title": "头条小程序",
+        "type": "remoteSelect",
+        "options": {
+            "labelField": "title",
+            "valueField": "id",
+            "url": "\/shop\/admin\/page_group\/index",
+            "paginate": "1",
+            "allowClear": true
+        },
+        "value": "",
+        "placeholder": "",
+        "tip": "同上"
+    },
+    "template_IOS": {
+        "group": "模板",
+        "group_key": "template",
+        "name": "template_IOS",
+        "alias": "IOS",
+        "title": "Ios App",
+        "type": "remoteSelect",
+        "options": {
+            "labelField": "title",
+            "valueField": "id",
+            "url": "\/shop\/admin\/page_group\/index",
+            "paginate": "1",
+            "allowClear": true
+        },
+        "value": "",
+        "placeholder": "",
+        "tip": "同上"
+    },
+    "template_ANDROID": {
+        "group": "模板",
+        "group_key": "template",
+        "name": "template_ANDROID",
+        "alias": "ANDROID",
+        "title": "Android App",
+        "type": "remoteSelect",
+        "options": {
+            "labelField": "title",
+            "valueField": "id",
+            "url": "\/shop\/admin\/page_group\/index",
+            "paginate": "1",
+            "allowClear": true
+        },
+        "value": "",
+        "placeholder": "",
+        "tip": "同上"
+    },
+    "share_title": {
+        "group": "分享",
+        "group_key": "share",
+        "name": "share_title",
+        "alias": "title",
+        "title": "默认标题",
+        "type": "string",
+        "frontend": 1,
+        "options": [],
+        "value": "",
+        "placeholder": "",
+        "tip": ""
+    },
+    "share_desc": {
+        "group": "分享",
+        "group_key": "share",
+        "name": "share_desc",
+        "alias": "desc",
+        "title": "默认描述",
+        "type": "string",
+        "frontend": 1,
+        "options": [],
+        "value": "",
+        "placeholder": "",
+        "tip": ""
+    },
+    "share_img": {
+        "group": "分享",
+        "group_key": "share",
+        "name": "share_img",
+        "alias": "img",
+        "title": "默认图片",
+        "type": "image",
+        "frontend": 1,
+        "options": [],
+        "value": "",
+        "placeholder": "",
+        "tip": ""
+    },
+    "share_id_name": {
+        "group": "分享",
+        "group_key": "share",
+        "name": "share_id_name",
+        "alias": "id_name",
+        "title": "携带uid名称",
+        "type": "string",
+        "frontend": 1,
+        "options": [],
+        "value": "",
+        "placeholder": "",
+        "tip": ""
+    }
+}

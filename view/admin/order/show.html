@@ -1,0 +1,211 @@
+{extend name="admin/public/layout" /}
+{block name="content"}
+<template id="app">
+    <div>
+        {:widget('before_content')}
+        <div class="group">
+            <div class="group-header">
+                订单信息
+                <div style="float: right;">
+                    {if $order['is_pay']}
+                    <span style="color: green;"><i style="font-size: 16px;" class="fa fa-check-circle"></i> 已付款</span>
+                    {else}
+                    <span class="text-danger"><i style="font-size: 16px;" class="fa fa-times-circle"></i> 未付款</span>
+                    {/if}
+                </div>
+            </div>
+            <div class="group-content">
+                <a-row>
+                    <a-col class="item" :span="12">
+                        <span class="text-bold">订单编号:</span>
+                        <span>{$order.order_sn}</span>
+                    </a-col>
+                    <a-col class="item" :span="12">
+                        <span class="text-bold">下单时间:</span>
+                        <span>{:date('Y-m-d H:m:s', $order.created_at->timestamp)}</span>
+                    </a-col>
+                    <a-col class="item" :span="24">
+                        <span class="text-bold">商品价格:</span>
+                        <span class="text-success">￥{$order.products_price}</span> + 
+                        <span class="text-bold">运费:</span>
+                        <span class="text-success">￥{$order.delivery_price}</span> - 
+                        <span class="text-bold">积分抵扣:</span>
+                        <span class="text-danger">￥{$order.score_price}</span> -
+                        <span class="text-bold">余额抵扣:</span>
+                        <span class="text-danger">￥{$order.money_price}</span> -
+                        <span class="text-bold">优惠金额:</span>
+                        <span class="text-danger">￥{$order.discount_price}</span> =
+                        <span class="text-bold">应付小计:</span>
+                        <span class="text-success">￥{$order.order_price}</span>
+                    </a-col>
+                    <a-col class="item" :span="24">
+                        <span class="text-bold">发货地址:</span>
+                        <yi-edit-input size="small" value="{$order.address}" param="address" @submit="handleSubmit"></yi-edit-input>
+                        <yi-edit-input size="small" value="{$order.contactor}" param="contactor" @submit="handleSubmit"></yi-edit-input>
+                        <yi-edit-input size="small" value="{$order.contactor_phone}" param="contactor_phone" @submit="handleSubmit"></yi-edit-input>
+                    </a-col>
+                    <a-col class="item" :span="24">
+                        <span class="text-bold">用户备注:</span>
+                        <span>{$order.remark}</span>
+                    </a-col>
+                </a-row>
+
+            </div>
+        </div>
+
+        <div class="group">
+            <div class="group-header">付款信息</div>
+            <div class="group-content">
+                <a-row>
+                    {php}
+                    $payTypeArr = [
+                        'wechat' => '微信支付', 'alipay' => '支付宝', 'money' => '余额支付', 'system' => '系统支付', 'underline' => '线下支付'
+                    ];
+                    $payMethodArr = [
+                        'mp' => '公众号', 'miniapp' => '小程序', 'tt' => '字节跳动', 'wap' => 'WAP', 'money' => '余额支付', 'system' => '系统支付', 'underline' => '线下支付'
+                    ];
+                    {/php}
+                    <a-col class="item" :span="12">
+                        <span class="text-bold">支付方式：</span>
+                        {if $order['is_pay']}
+                        <span>{$order['pay_type'] ? $payTypeArr[$order['pay_type']] : ''} - {$order['pay_method'] ? $payMethodArr[$order['pay_method']] : ''}</span>
+                        {else}
+                        <span>未付款</span>
+                        {/if}
+                    </a-col>
+                    <a-col class="item" :span="12">
+                        <span class="text-bold">付款时间:</span>
+                        {if $order['is_pay']}
+                        <span>{:date('Y-m-d H:i:s', $order['pay_time'])}</span>
+                        {else}
+                        <span>--</span>
+                        {/if}
+                    </a-col>
+
+                    <a-col class="item" :span="12">
+                        <span class="text-bold">下单用户:</span>
+                        <span> {$order.user.nickname} ({$order.user.id})</span>
+                    </a-col>
+
+                </a-row>
+            </div>
+        </div>
+
+        <div class="group">
+            <div class="group-header">物流信息</div>
+            <div class="group-content">
+                {if $order['is_delivery'] == 0}
+                <div class="text-center text-muted">未发货</div>
+                {else}
+                <a-row>
+                    <a-col class="item" :span="24">
+                        <span class="text-bold">物流公司:</span>
+                        <span>{$express.name}</span>
+                        <a href="javascript:openwindow('https://m.kuaidi100.com/app/query/?nu={$order.express_no}&coname=shop', '物流查询', 375, 667);">{$order.express_no}</a>
+                    </a-col>
+                </a-row>
+                {/if}
+            </div>
+        </div>
+
+
+        <div class="group">
+            <div class="group-header">订单日志</div>
+            <div class="group-content">
+                <a-row>
+                    {foreach $logs as $v}
+                    <a-col class="item" :span="24">
+                        {php}$data = (array)json_decode($v['extend']);{/php}
+                        <span>{:date('Y-m-d H:i:s', $v['created_at']->timestamp)}</span>
+                        <span style="margin-left: 10px;">{$v['desc']}</span>
+                    </a-col>
+                    {/foreach}
+                </a-row>
+            </div>
+        </div>
+
+        <div class="group">
+            <div class="group-header">
+                商品信息
+            </div>
+
+            <div class="group-content">
+                <table class="table" style="table-layout:fixed">
+                    <thead>
+                        <tr>
+                            <th>商品名称</th><th style="width: 80px;text-align:center;">图片</th><th style="width: 180px;text-align:center;">规格</th><th style="width: 80px;text-align:center;">销售价</th><th style="width: 80px;text-align:center;">数量</th><th style="width: 80px;text-align:center;">金额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach $order['products'] as $item}
+                        <tr>
+                            <td>
+                                <div class="product-title line-1" title="{$item.title}">{$item.title}</div>
+                                <div class="product-desc line-1" title="{$item.description}">{$item.description}</div>
+                                
+                            </td>
+                            <td align="center">
+                                <div style="width: 50px;height: 50px;">
+                                    <img style="width: 100%;" src="{$item.image}" alt="">
+                                </div>
+                            </td>
+                            <td align="center">{$item.attributes}</td>
+                            <td align="center">￥{$item.price}</td>
+                            <td align="center">{$item.quantity}</td>
+                            <td align="center">￥{:number_format($item.price * $item.quantity, 2)}</td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {:widget('after_content')}
+    </div>
+</template>
+{/block}
+{block name="style"}
+<style>
+    .text-bold {
+        font-weight: bold;
+    }
+    .group {
+        border: 1px solid #ddd;
+        margin: 5px 0;
+    }
+    .group .group-header{
+        background: #eef2f5;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .group .group-content {
+        padding: 10px;
+    }
+
+    .group .group-content .item {
+        margin: 5px 0;
+    }
+
+    .product-title, .product-desc {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    .product-desc {
+        color: #888;
+    }
+
+</style>
+{:widget('style')}
+{/block}
+{block name="scripts"}
+<script>
+    function openwindow(url,name,iWidth,iHeight)  
+    {
+        var iTop = (window.screen.height-30-iHeight)/2;
+        var iLeft = (window.screen.width-10-iWidth)/2; 
+        window.open(url,name,'height='+iHeight+',,innerHeight='+iHeight+',width='+iWidth+',innerWidth='+iWidth+',top='+iTop+',left='+iLeft+',toolbar=no,menubar=no,scrollbars=auto,resizeable=no,location=no,status=no');  
+    } 
+</script>
+{:widget('scripts')}
+{/block}

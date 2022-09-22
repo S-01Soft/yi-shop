@@ -1,0 +1,7 @@
+<script>
+    var attrItems = {$attrItems|raw};
+    Yi.event.on('ShopAdminProductEditInit', function(data) {
+        $vm.$refs['shop-sku'].init(data.skus, attrItems);
+        return data;
+    });
+</script>

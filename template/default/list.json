@@ -1,0 +1,17 @@
+{
+    "base_mode": {
+        "group": "基础",
+        "group_key": "base",
+        "name": "base_mode",
+        "alias": "mode",
+        "title": "排列",
+        "type": "radio",
+        "options": {
+            "1": "样式一",
+            "2": "样式二"
+        },
+        "value": "2",
+        "placeholder": "",
+        "tip": ""
+    }
+}

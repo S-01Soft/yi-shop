@@ -1,0 +1,45 @@
+.shop-address-list li {
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.adr-title {}
+.adr-info {
+    font-size: 13px;
+    color: #888;
+}
+.shop-address-list .adr-default {
+    border: 1px solid #eb5757;
+    border-radius: 5px;
+    color: #eb5757;
+    padding: 2px 5px;
+    font-size: 12px;
+}
+.adr-right {
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.adr-right .btn-edit {
+    color: #999;
+}
+.adr-right .btn-del {
+    color: #eb5757;
+}
+
+.modal-title {
+    padding: 12px 0;
+    background: #312b2b;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    color: #fff;
+}
+.modal-body {
+    padding: 20px 20px;
+}

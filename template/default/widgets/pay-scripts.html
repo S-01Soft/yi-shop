@@ -1,0 +1,36 @@
+{if $order->scene=='shop'}
+<script>
+    Yi.ready(function() {
+        $('.transfer').click(function() {
+            $('#modal-transfer').modal('show');
+        });
+        $('#modal-transfer').on('hidden.bs.modal', function() {
+            $($('.pay-type')[0]).click();
+        });
+        $('.btn-trans-submit').click(function() {
+            Yi.ajax({
+                url: '/shop/api/order/transfer',
+                data: {out_order_sn: '{$order.out_order_sn}'}
+            }, function() {
+                
+                location.href = '/shop/index/order/index.html'
+            })
+        });
+        
+        Yi.ajax({
+            url: '/shop/api/index/getAccount',
+            loading: false
+        }, function(data) {
+            if (data) {
+                trans_info = '<div><b class="">公司名称：</b><span>' + data.company_name + '</span><div>';
+                trans_info += '<div><b class="">开户银行：</b><span>' + data.bank + '</span><div>';
+                trans_info += '<div><b class="">银行帐号：</b><span>' + data.account + '</span><div>';
+                trans_info += '<div><b class="">订单号：</b><span>{$order.out_order_sn}</span><div>';
+                trans_info += '<div class="trans-tips">请向以上账户转账<span class="text-danger text-large">￥{$order->price}</span>，留言请附订单号：<span class="text-danger text-large">{$order->out_order_sn}</span>，转账成功后我们会尽快安排发货。</div>'
+                $('#trans-content').html(trans_info)
+            }
+            return false;
+        });
+    });
+</script>
+{/if}

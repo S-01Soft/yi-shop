@@ -1,0 +1,57 @@
+{extend name="admin/public/layout" /}
+{block name="content"}
+<template id="app">
+    <div>
+        {:widget('before_content')}
+        <div class="form-tab">
+            <a-tabs v-if="Object.keys(tabs).length > 1" type="card" v-model="activeTab">
+                <a-tab-pane v-for="(item,key) in tabs" :key="key" :tab="$lang(item)"></a-tab-pane>
+            </a-tabs>
+        </div>
+        <a-form-model class="form" ref="ruleForm" :model="form" :rules="rules" :label-col="{span: 3}" :wrapper-col="{span: 18}">
+            {:widget('before_form_item')}
+            <a-form-model-item prop='user_id' label='{:lang("User Id")}'>
+                <a-input-number v-model='form.user_id' step='1'></a-input-number>
+            </a-form-model-item>
+        <a-form-model-item prop='order_product_id' label='{:lang("Order Product Id")}'>
+                <a-input-number v-model='form.order_product_id' step='1'></a-input-number>
+            </a-form-model-item>
+        <a-form-model-item prop='order_id' label='{:lang("Order Id")}'>
+                <a-input-number v-model='form.order_id' step='1'></a-input-number>
+            </a-form-model-item>
+        <a-form-model-item prop='product_id' label='{:lang("Product Id")}'>
+                <a-input-number v-model='form.product_id' step='1'></a-input-number>
+            </a-form-model-item>
+        <a-form-model-item prop='sku_id' label='{:lang("Sku Id")}'>
+                <a-input-number v-model='form.sku_id' step='1'></a-input-number>
+            </a-form-model-item>
+        <a-form-model-item prop='images' label='{:lang("Images")}'>
+                <yi-image v-model='form.images' :multiple='true'></yi-image>
+            </a-form-model-item>
+        <a-form-model-item prop='content' label='{:lang("Content")}'>
+                <yi-editor v-model='form.content' id='i-content'></yi-editor>
+            </a-form-model-item>
+        <a-form-model-item prop='star' label='{:lang("Star")}'>
+                <a-input :placeholder='$lang("Star")' v-model='form.star'></a-input>
+            </a-form-model-item>
+        <a-form-model-item prop='status' label='{:lang("Status")}'>
+                <yi-switch v-model='form.status'></yi-switch>
+            </a-form-model-item>
+            
+            {:widget('after_form_item')}
+            <a-form-item class="fixed-bottom-btn-group" :wrapper-col="{ span: 14, offset: 4 }">
+                <a-button class="btn" :loading="btnLoading" type="primary" @click="onSubmit">{:lang('Submit')}</a-button>
+                <a-button class="btn" @click="onCancel">{:lang('Cancel')}</a-button>
+            </a-form-item>
+        </a-form-model>    
+        {:widget('after_content')}
+    </div>
+</template>
+{:widget('after_body')}
+{/block}
+{block name="style"}
+{:widget('style')}
+{/block}
+{block name="scripts"}
+{:widget('scripts')}
+{/block}
