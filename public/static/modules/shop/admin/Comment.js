@@ -13,12 +13,12 @@ define([], function() {
 
                     el += '<div>评价内容：</div>';
                     if (row.images) {
-                        el += '<div style="white-space: nowrap;overflow-x: scroll;">'
+                        el += '<div style="white-space: nowrap;">'
                         var images = row.images.split(',');
                         for (var i = 0; i < images.length; i ++) {
                             var img = images[i];
                             if (!img) continue;
-                            el += '<img style="width: 60px;height: 60px;margin: 2px;" src="' + img + '" />';
+                            el += '<img style="width: 60px;height: 60px;margin: 2px;border-radius: 5px;" src="' + img + '" />';
                         }
                         el += '</div>';
                     }
@@ -28,7 +28,17 @@ define([], function() {
                 }},
                 { title: $lang('Images'), dataIndex: 'images', key: 'images', align: 'center', customRender: Yi.render.images, visible: false}, 
                 { title: $lang('Content'), dataIndex: 'content', key: 'content', align: 'center', customRender: Yi.render.html, visible: false}, 
-                { title: $lang('Star'), dataIndex: 'star', key: 'star', align: 'center', customRender: Yi.render.html, }, 
+                { title: $lang('Star'), dataIndex: 'star', key: 'star', align: 'center', customRender: function(val, row, index, column) {
+                    var h = $vm.$createElement;
+                    var nodes = [];
+                    for (var i = 0; i < val; i ++) {
+                        nodes.push(h('a-icon', {
+                            props: { type: 'star', theme: 'filled' },
+                            style: { color: 'red', margin: '2px' }
+                        }))
+                    }
+                    return h('div', {}, nodes);
+                }, }, 
                 { title: $lang('ShopProductSku Price'), dataIndex: 'product_sku_price', key: 'product_sku.price', align: 'center', customRender: Yi.render.html},
                 { title: $lang('Status'), dataIndex: 'status', key: 'status', align: 'center', customRender: Yi.render.switch, }, 
                 { title: $lang('Created At'), dataIndex: 'created_at', key: 'created_at', align: 'center', customRender: Yi.render.date, }, 

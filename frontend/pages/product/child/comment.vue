@@ -24,7 +24,7 @@
 					</view>						
 				</view>
 				<view class="bot u-flex-row">
-					<text class="attr">购买类型：{{item.sku.value}}</text>
+					<text class="attr">购买类型：{{item.orderProduct.attributes}}</text>
 					<text class="time">{{item.create_time_text}}</text>
 				</view>
 			</view>
@@ -65,17 +65,54 @@
 			if (this.product.id) this.getComments()
 		},
 		methods: {
-			getComments(type = 'init') {
-				this.$http.post('shop/api/product/getComments', {
-					id: this.product.id,
+			async getComments(type = 'init') {
+				// this.$http.post('shop/api/product/getComments', {
+				// 	id: this.product.id,
+				// 	page: this.comment_page
+				// }).then(data => {
+				// 	this.commentList = type == 'init' ? data.data : this.commentList.concat(data.data)
+				// 	this.commentCount = data.total
+				// 	this.good_comment = data.good_comment
+				// 	this.showLoadMore = data.current_page < data.last_page ? true : false;
+				// 	this.total = data.total;
+				// });
+				const query = `
+					query ($product_id: Int!, $page: Int = 1) {
+						comments(product_id: $product_id, page: $page) {
+							pagination {
+								current_page
+								has_more
+							}
+							data {
+							  id
+							  star
+							  content
+							  status
+							  create_time_text
+							  orderProduct {
+								  attributes
+							  }
+							  user {
+								  nickname
+								  avatar
+							  }
+							}
+						}
+						
+						productGoodComment(product_id: $product_id)
+					}
+				`
+				const result = await this.$gql.fetch(query, {
+					product_id: this.product.id,
 					page: this.comment_page
-				}).then(data => {
-					this.commentList = type == 'init' ? data.data : this.commentList.concat(data.data)
-					this.commentCount = data.total
-					this.good_comment = data.good_comment
-					this.showLoadMore = data.current_page < data.last_page ? true : false;
-					this.total = data.total;
-				})
+				});
+				const { comments, productGoodComment } = result.get();
+				const { data, pagination } = comments;
+				this.commentList = type == 'init' ? data : this.commentList.concat(data)
+				this.commentCount = pagination.total
+				this.good_comment = productGoodComment
+				this.showLoadMore = pagination.has_more;
+				this.total = pagination.total;
 			},
 			commentLoadMore() {
 				this.comment_page += 1

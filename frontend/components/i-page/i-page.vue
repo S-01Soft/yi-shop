@@ -1,5 +1,6 @@
 <template>
-	<view class="page-content" :style="{background: data && data.option && data.option.background, minHeight: height + 'px'}">
+	<view class="page-content"
+		:style="{background: data && data.option && data.option.background, minHeight: height + 'px'}">
 		<view class="" v-for="(item, index) in list" :key="index">
 			<shop-slide v-if="item.type == 'shop-slide'" :refresh="refresh" :option="item.option"></shop-slide>
 			<shop-navs v-if="item.type == 'shop-navs'" :refresh="refresh" :option="item.option"></shop-navs>
@@ -8,12 +9,17 @@
 			<shop-grid v-if="item.type == 'shop-grid'" :refresh="refresh" :option="item.option"></shop-grid>
 			<shop-search v-if="item.type == 'shop-search'" :refresh="refresh" :option="item.option"></shop-search>
 			<shop-images v-if="item.type == 'shop-images'" :refresh="refresh" :option="item.option"></shop-images>
-			<shop-title-bar v-if="item.type == 'shop-title-bar'" :refresh="refresh" :option="item.option"></shop-title-bar>
+			<shop-title-bar v-if="item.type == 'shop-title-bar'" :refresh="refresh" :option="item.option">
+			</shop-title-bar>
 			<shop-text v-if="item.type == 'shop-text'" :refresh="refresh" :option="item.option"></shop-text>
-			<shop-product-list v-if="item.type == 'shop-product-list'" :refresh="refresh" :option="item.option"></shop-product-list>
-			<shop-user-head v-if="item.type == 'shop-user-head'" :refresh="refresh" :option="item.option"></shop-user-head>
-			<shop-user-order v-if="item.type=='shop-user-order'" :option="item.option" :refresh="refresh"></shop-user-order>
-			<shop-user-logout v-if="item.type == 'shop-user-logout'" :refresh="refresh" :option="item.option"></shop-user-logout>
+			<shop-product-list v-if="item.type == 'shop-product-list'" :refresh="refresh" :option="item.option">
+			</shop-product-list>
+			<shop-user-head v-if="item.type == 'shop-user-head'" :refresh="refresh" :option="item.option">
+			</shop-user-head>
+			<shop-user-order v-if="item.type=='shop-user-order'" :option="item.option" :refresh="refresh">
+			</shop-user-order>
+			<shop-user-logout v-if="item.type == 'shop-user-logout'" :refresh="refresh" :option="item.option">
+			</shop-user-logout>
 			<shop-coupon v-if="item.type == 'shop-coupon'" :refresh="refresh" :option="item.option"></shop-coupon>
 		</view>
 	</view>
@@ -21,9 +27,11 @@
 
 <script>
 	import Refresh from '@/mixins/refresh'
-	
-	import { mapActions } from 'vuex'
-	
+
+	import {
+		mapActions
+	} from 'vuex'
+
 	export default {
 		name: 'shop-page',
 		mixins: [Refresh],
@@ -58,7 +66,18 @@
 			...mapActions(['getAppInfo']),
 			async init() {
 				if (!this.pageId) return;
-				this.data = await this.$http.post('shop/api/index/page', {id: this.pageId});
+				const query = `
+					query ($pageId: Int){
+						page(id: $pageId) {
+							option
+							list
+						}
+					}
+				`;
+				const result = await this.$gql.fetch(query, {
+					pageId: this.pageId
+				})
+				this.data = result.get().page;
 				this.$emit('request-ok', this.data);
 			},
 			async refreshHandle() {

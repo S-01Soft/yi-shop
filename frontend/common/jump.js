@@ -1,9 +1,15 @@
 import config from '@/common/config';
 
 let jump = function(option) {
-	let type = option.type || 0
-	type = parseInt(type)
+	let type = option.type == undefined ? 0 : option.type;
+	type = parseInt(type);
 	switch (type) {
+		case 0: {
+			uni.navigateTo({
+				url: option.target
+			})
+			break;
+		}
 		case 1: {
 			uni.navigateTo({
 				url: '/pages/product/product?id=' + option.target

@@ -1,0 +1,9 @@
+    categories: [ShopCategory]
+    @model(name: "\\app\\shop\\model\\api\\CategoryModel")
+    @list
+
+    categoryTreeList: [ShopCategory]
+    @resolver(name: "\\app\\shop\\logic\\api\\CategoryLogic::instance->getTreeList")
+
+    categoryTreeArray: [ShopCategory]
+    @resolver(name: "\\app\\shop\\logic\\api\\CategoryLogic::instance->getTreeArray")

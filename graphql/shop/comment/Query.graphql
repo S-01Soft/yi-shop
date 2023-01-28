@@ -1,0 +1,15 @@
+    "商品评论"
+    comments(
+        product_id: Int! @eq
+        page: Int = 1
+    ): ShopCommentPaginate
+    @model(name: "\\app\\shop\\model\\api\\CommentModel")
+    @where(value: { status: 1 })
+    @order(value: {created_at: "desc"})
+    @paginate
+
+    "商品好评率"
+    productGoodComment(
+        product_id: Int!
+    ): String
+    @resolver(name: "\\app\\shop\\resolvers\\Product@getGoodComment")

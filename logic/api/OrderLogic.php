@@ -114,7 +114,7 @@ class OrderLogic extends Logic
             throw new Exception("请选择收货地址");
         }
         Db::beginTransaction();
-        $skuLogic = SkuLogic::instance()->clacPrice($products, $address->address_id);
+        $skuLogic = SkuLogic::instance()->useMoney(!empty($use_money))->useScore(!empty($use_score))->clacPrice($products, $address->address_id);
         $config = get_module_config('shop');
         $order_sn = ev('CreateOrderNo', 'S');
         try {
@@ -236,7 +236,8 @@ class OrderLogic extends Logic
         extract($attributes);
         $products = $this->getSkuProducts($attributes);
         $address = AddressModel::find($address_id);
-        $skuLogic = SkuLogic::instance()->clacPrice($products, $address->address_id);
+        $skuLogic = SkuLogic::instance()->useMoney(!empty($use_money))->useScore(!empty($use_score));
+        $skuLogic->clacPrice($products, $address->address_id);
         return [
             'discount_price' => $skuLogic->discount_price,
             'products_price' => $skuLogic->products_price,
@@ -396,7 +397,7 @@ class OrderLogic extends Logic
     public function cancelPostSale($order_sn)
     {
         $order = $this->static::where([['order_sn', '=', $order_sn], ['user_id', '=', get_user()->id]])->first();
-        if (!$order) throw new Exception();
+        if (!$order) throw new Exception("订单不存在");
         $order->after_sale_status = 0;
         $order->after_sale_data = '{}';
         $payload = (object)[

@@ -1,5 +1,5 @@
 <template>
-	<view v-if="products && products.length" class="section" :style="{margin: option.margin}">
+	<view class="section" :style="{margin: option.margin}">
 		<view style="background:#f5f5f5;padding-bottom:6upx;" v-if="option.title.length">
 			<view @tap="goCategory" class="cate-title-box" style="background:#ffffff;padding: 20upx;border-left:6upx solid #fc7592;font-size:28upx;">
 				<view class="title">
@@ -63,6 +63,7 @@
 		mixins: [Refresh],
 		data() {
 			return {
+				loading: false,
 				products: []
 			}
 		},
@@ -89,13 +90,35 @@
 							break;
 						}
 				}
-				return new Promise((resolve, reject) => {
-					this.$http.get('shop/api/product/getList', {params: form}).then(data => {
-						this.products = data.data;
-						resolve(data);
-					}).catch(e => {
-						reject(e);
-					});
+				return new Promise(async (resolve, reject) => {
+					const query = `
+						query ($cat_id: Int, $tag_id: Int) {
+						  products(category_id: $cat_id, tag_id: $tag_id) {
+						    data {
+						      id
+						      title
+						      description
+							  image
+						      skus {
+								  price
+							  }
+						    }
+						  }
+						}
+					`;
+					this.loading = true;
+					const result = await this.$gql.fetch(query, form);
+					this.loading = false;
+					const err = result.getError('products');
+					if (err) return result.show(err)
+					const { products } = result.get();
+					this.products = products.data
+					// this.$http.get('shop/api/product/getList', {params: form}).then(data => {
+					// 	this.products = data.data;
+					// 	resolve(data);
+					// }).catch(e => {
+					// 	reject(e);
+					// });
 				});
 			},
 			goDetail(item) {

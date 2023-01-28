@@ -1,0 +1,8 @@
+    "我的收藏"
+    favorites(
+        page: Int = 1
+    ): ShopFavoritePaginate
+    @auth(login: true)
+    @model(name: "\\app\\shop\\model\\api\\FavoriteModel")
+    @resolver(prefix: "\\app\\shop\\resolvers\\Favorite@", name: ["bySelf"])
+    @paginate

@@ -81,7 +81,7 @@
 				<text class="iconfont icongouwuche2"></text>
 				<text>购物车</text>
 			</navigator>
-			<view class="p-b-btn" :class="{active: product.favorite}" @click="toFavorite">
+			<view class="p-b-btn" :class="{active: product.is_favorite}" @click="toFavorite">
 				<text class="iconfont iconshoucang7"></text>
 				<text>收藏</text>
 			</view>
@@ -96,7 +96,7 @@
 					<text>发起拼团</text>
 				</view>
 			</view>
-			<view class="action-btn-group u-flex-row" v-else :class="product.on_sale && currentSku.stock > 0 ? '' : 'disabled'">
+			<view class="action-btn-group u-flex-row" v-else :class="product.on_sale && currentSku && currentSku.stock > 0 ? '' : 'disabled'">
 				<button type="primary" class="action-btn no-border add-cart-btn" @click="addCart">加入购物车</button>
 				<button type="primary" class="action-btn no-border buy-now-btn" @click="buy()">立即购买</button>
 			</view>
@@ -122,8 +122,8 @@
 						</view>
 					</view>
 				</view>
-				<view v-for="(item,index) in product.attrItems" :key="index" class="attr-list">
-					<text>{{product.attrGroup[index]}}</text>
+				<view v-for="(item,index) in product.attr_items" :key="index" class="attr-list">
+					<text>{{product.attr_group[index]}}</text>
 					<view class="item-list u-flex-row">
 						<text v-for="(childItem, childIndex) in item" v-if="childItem.pid === item.id" :key="childIndex" class="tit"
 						 :class="{selected: attrChoose[index] === childIndex, disabled: skusStates[index][childIndex] == false}" @click="selectSpec(index, childIndex, item)">
@@ -181,8 +181,9 @@
 			if (options.scene) {
 				options = this.$tools.getQuery(null, '?' + decodeURIComponent(options.scene))
 			}
-			this.id = options.id
-			this.getProductInfo({
+			this.id = parseInt(options.id);
+			// this.getInfo();
+			this.getInfo({
 				id: this.id
 			}).then(data => {
 				if (data.on_sale == 0) uni.showToast({
@@ -206,7 +207,7 @@
 			currentSku() {
 				let attrValues = []
 				for (let i in this.attrChoose) {
-					attrValues.push(this.product.attrItems[i][this.attrChoose[i]])
+					attrValues.push(this.product.attr_items[i][this.attrChoose[i]])
 				}
 				const val = attrValues.join(',')
 				for (let i in this.product.skus) {
@@ -237,6 +238,45 @@
 		},
 		methods: {
 			...mapActions(['getProductInfo', 'cartAddProduct', 'getCartProducts']),
+			async getInfo(cb) {
+				const query = `
+				query ($product_id: Int!) {
+				  product(id: $product_id) {
+				    id
+				    title
+				    description
+				    sold_count
+				    is_favorite
+				    services {
+				      title
+				      description
+				    }
+				    unit {
+				      name
+				      code
+				    }
+				    attr_group
+				    attr_items
+				    on_sale
+				    image
+				    skus {
+				      id
+				      keys
+				      value
+				      price
+				      market_price
+				      image
+				      stock
+				    }
+				  }
+				}
+				`
+				const result = await this.$gql.fetch(query, {
+					product_id: this.id
+				});
+				result.error('product')
+				return Promise.resolve(result.get('product'))
+			},
 			//规格弹窗开关
 			getGroupPrice() {
 				if (this.product.groupon) {
@@ -256,7 +296,7 @@
 				}
 			},
 			specInit(sku_id = 0) {
-				for (let index in this.product.attrGroup) {
+				for (let index in this.product.attr_group) {
 					let i = 0;
 					if (sku_id) {
 						for (let k in this.product.skus) {
@@ -278,7 +318,7 @@
 			getSkusStates() {
 				let result = []
 				let data = this.attrChoose
-				this.product.attrItems.forEach((item, index) => {
+				this.product.attr_items.forEach((item, index) => {
 					let row = []
 					item.forEach((subItem, subIndex) => {
 						if (subIndex != data[index]) {
@@ -300,7 +340,7 @@
 					if (index == key) {
 						result.push(subItem)
 					} else {
-						result.push(this.product.attrItems[key][data[key]])
+						result.push(this.product.attr_items[key][data[key]])
 					}
 				}
 				return result.join(',')
@@ -333,18 +373,26 @@
 				return {title, img, desc, link: null};
 			},
 			//收藏
-			toFavorite() {
+			async toFavorite() {
 				if (!this.isLogged) {
 					this.goLogin()
 					return
 				}
 				let form = {
-					id: this.product.id,
-					state: this.product.favorite ? 0 : 1
+					product_id: this.product.id,
+					state: this.product.is_favorite ? false : true
 				}
-				this.$http.post('shop/api/user/favorite', form).then(res => {
-					this.$set(this.product, 'favorite', form.state)
-				})
+				const query = `
+					mutation Debug ($product_id: Int!, $state: Boolean!) {
+						favorite(product_id: $product_id, state: $state)
+					}
+				`
+				const result = await this.$gql.fetch(query, form, 'Debug');
+				const err = result.getError('favorite');
+				if (err) result.error('favorite');
+				else {
+					this.$set(this.product, 'is_favorite', form.state)
+				}
 			},
 			checkOnsale() {
 				if (this.product.on_sale == 0) {
@@ -383,7 +431,7 @@
 					url
 				})
 			},
-			addCart() {
+			async addCart() {
 				if (!this.isLogged) {
 					this.goLogin()
 					return

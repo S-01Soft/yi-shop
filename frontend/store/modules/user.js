@@ -1,5 +1,6 @@
 import Tools from '@/common/tools'
 const http = uni.$u.http;
+const gql = uni.$u.gql;
 const state = {
 	userinfo: {},
 	isLogged: false,
@@ -49,13 +50,29 @@ const actions = {
 		})
 	},
 	getUserinfo({ commit }) {
-		return new Promise((resolve, reject) => {
-			http.get('shop/api/user').then(data => {
-				commit('SAVE_USERINFO', data)
-				resolve(data)
-			}).catch(e => {
-				reject(e)
-			})
+		return new Promise(async (resolve, reject) => {
+			const query = `
+				{
+				  userinfo {
+						id
+						uid
+						nickname
+						username
+						avatar
+						money
+						score
+				  }
+				}
+			`
+			const result = await gql.fetch(query);
+			const error = result.getError('userinfo');
+			if (error) {
+				reject(error)
+			} else {
+				const { userinfo } = result.get();
+				commit('SAVE_USERINFO', userinfo)
+				resolve(userinfo)
+			}
 		})
 	},
 	getUserAddress({ commit }) {

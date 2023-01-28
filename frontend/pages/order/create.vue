@@ -53,8 +53,8 @@
 			<view class="yt-list-cell b-b">
 				<view class="cell-icon">积</view>
 				<text class="cell-tit clamp">积分可抵扣￥{{totalPrice.score_price}}</text>
-				<text class="cell-tip active" @tap="useScoreHandle(1)" v-if="!form.use_score">使用</text>	
-				<text class="cell-tip active" v-else @tap="useScoreHandle(0)">积分 -{{appInfo && appInfo.config && (appInfo.config.shop.order.score_to_money * totalPrice.score_price).toFixed(0)}}</text>
+				<text class="cell-tip active" @tap="useScoreHandle(true)" v-if="!form.use_score">使用</text>	
+				<text class="cell-tip active" v-else @tap="useScoreHandle(false)">积分 -{{appInfo && appInfo.config && (appInfo.config.shop.order.score_to_money * totalPrice.score_price).toFixed(0)}}</text>
 			</view>
 		</view>
 		
@@ -62,8 +62,8 @@
 			<view class="yt-list-cell b-b">
 				<view class="cell-icon">余</view>
 				<text class="cell-tit clamp">余额可抵扣￥{{totalPrice.money_price}}</text>
-				<text class="cell-tip active" @tap="useMoneyHandle(1)" v-if="!form.use_money">使用</text>
-				<text class="cell-tip active" v-else @tap="useMoneyHandle(0)">余额 -￥{{totalPrice.money_price}}</text>
+				<text class="cell-tip active" @tap="useMoneyHandle(true)" v-if="!form.use_money">使用</text>
+				<text class="cell-tip active" v-else @tap="useMoneyHandle(false)">余额 -￥{{totalPrice.money_price}}</text>
 			</view>
 		</view>
 		
@@ -123,13 +123,13 @@
 				addressData: {},
 				currentAddress: {},
 				form: {
-					use_money: 0,
-					use_score: 0
+					use_money: false,
+					use_score: false
 				},
 				options: {},
 				totalPrice: {},
 				address_id: 0,
-				stopSale: false,
+				stopSale: true,
 				couponVisible: 0, //优惠券面板显示状态
 				currentCoupon: {},
 			}
@@ -139,7 +139,7 @@
 			this.options = options;
 			await this.getUserinfo()
 			if (options.sku_id) {
-				this.form.product = options;
+				this.form.product = {sku_id: parseInt(options.sku_id), quantity: parseFloat(options.quantity)}
 				let data = await this.getProducts(options.sku_id, options.quantity);
 				this.products = [data]
 			} else {
@@ -176,7 +176,7 @@
 				return total.toFixed(2)
 			},
 			order_total_price() {
-				if (!this.totalPrice.order_price) return '-';
+				// if (!this.totalPrice.order_price) return '-';
 				let total = parseFloat(this.totalPrice.order_price)
 				return total.toFixed(2);
 			},
@@ -194,26 +194,55 @@
 			changePayType(type){
 				this.payType = type;
 			},
-			getTotalPrice() {
+			async getTotalPrice() {
 				let form = Object.assign({address_id: this.address_id, desc: this.desc}, this.form)
-				this.$http.post('shop/api/order/getPrice', form).then(data => {
-					this.stopSale = false
-					this.totalPrice = data
-				}).catch(e => {
-					this.stopSale = true
-				})
+				const query = `
+					query($address_id: Int!, $product: ShopProductInfoInput, $use_money: Boolean, $use_score: Boolean) {
+					  orderPrice(address_id: $address_id, product: $product, use_money: $use_money, use_score: $use_score) {
+					    money_price
+					    use_money_price
+					    score_price
+					    use_score_price
+					    products_price
+					    order_price
+					    delivery_price
+					    discount_price
+					  }
+					}
+				`
+				const result = await this.$gql.fetch(query, form);
+				const err = result.getError('orderPrice');
+				if (err) return result.show(err)
+				const { orderPrice } = result.get();
+				this.totalPrice = orderPrice;
+				this.stopSale = false;
 			},
 			async getProducts(sku_id, quantity) {
-				let data = await this.$http.post('shop/api/product/sku', {id: sku_id})
-				let product = data.product;
-				delete data.product;
+				const query = `
+					query ($id: Int!) {
+						sku (id: $id) {
+						    image
+						    price
+							value
+						    product {
+						      title
+						      image
+						    }
+						  }
+					}
+				`
+				const result = await this.$gql.fetch(query, {id: parseInt(sku_id)})
+				const { sku } = result.get();
+				// let data = await this.$http.post('shop/api/product/sku', {id: sku_id})
+				let product = sku.product;
+				delete sku.product;
 				return {
-					sku: data,
+					sku,
 					product,
 					quantity
 				}
 			},
-			submit(){
+			async submit(){
 				if (this.stopSale) return
 				let form = {
 					address_id: this.currentAddress.id
@@ -221,13 +250,20 @@
 				
 				if (this.currentCoupon) form.coupon_id = this.currentCoupon.id
 				form = Object.assign(form, this.form)
-				this.$http.post('shop/api/order/add', form).then(data => {
-					this.getCartProducts();
-					this.getUserinfo();
-					uni.redirectTo({
-						url: '/pages/pay/index?order_sn=' + data
-					})
-				}).catch(e => {})
+				const query = `
+					mutation($address_id: Int!, $product: ShopProductInfoInput, $use_money: Boolean, $use_score: Boolean, $remark: String) {
+						createOrder(address_id: $address_id, product: $product, use_money: $use_money, use_score: $use_score, remark: $remark)
+					}
+				`
+				const result = await this.$gql.fetch(query, form);
+				const err = result.getError('createOrder');
+				if (err) return result.show(err);
+				const order_sn = result.get('createOrder');
+				this.getCartProducts();
+				this.getUserinfo();
+				uni.redirectTo({
+					url: '/pages/pay/index?order_sn=' + order_sn
+				})
 				
 			},
 			getDefaultAddress() {

@@ -1,0 +1,53 @@
+type ShopCommentPaginate {
+    pagination: Pagination
+    data: [ShopComment]
+}
+
+type ShopComment {
+    id: Int!
+    "用户"
+    user_id: Int
+    user: ShopCommentUser @defer(resolver: "\\app\\shop\\loaders\\Shop::getUserById", keys: "user_id")
+    order_product_id: Int!
+    orderProduct: ShopOrderProduct @defer(resolver: "\\app\\shop\\loaders\\Shop::getOrderProductById", keys: "order_product_id")
+    "订单"
+    order_id: Int
+    order: ShopOrder @defer(resolver: "\\app\\shop\\loaders\\Shop::getOrderById", keys: "order_id")
+    "商品"
+    product_id: Int
+    product: ShopProduct @defer(resolver: "\\app\\shop\\loaders\\Shop::getProductById", keys: "product_id")
+    "SKU"
+    sku_id: Int
+    "图片"
+    images: String!
+    "评价内容"
+    content: String
+    "星级"
+    star: Int
+    "创建时间"
+    created_at: Int
+    "最后更新"
+    updated_at: Int
+    "删除时间"
+    deleted_at: Int
+    create_time_text: String @alias(key: "created_at") @date(formatter: "Y-m-d")
+    "显示"
+    status: Int!
+}
+
+type ShopCommentUser {
+    nickname: String @water
+    avatar: String
+}
+
+input ShopCommentInput {
+    user_id: Int
+    order_product_id: Int!
+    order_id: Int
+    product_id: Int
+    sku_id: Int
+    images: String!
+    content: String
+    star: Int
+    status: Int!
+}

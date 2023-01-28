@@ -4,6 +4,9 @@ import App from './App'
 // 引入全局uView
 import uView from '@/uni_modules/uview-ui'
 
+import gql from '@/common/GraphQLHttp';
+Vue.prototype.$gql = gql;
+
 import store from './store'
 uni.$store = Vue.prototype.$store = store
 
@@ -20,10 +23,16 @@ import f from '@/common/function';
 Vue.prototype.$f = f;
 uni.$f = f;
 
+import msg from '@/common/message';
+Vue.prototype.$msg = msg;
+uni.$msg = msg;
+
+import Pusher from '@/common/push';
+Vue.prototype.$pusher = Pusher;
+
 Vue.config.productionTip = false
 Vue.prototype.uni = uni;
 Vue.prototype.$http = uni.$u.http
-
 
 
 App.mpType = 'app'

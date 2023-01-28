@@ -1,0 +1,44 @@
+type ShopProductSkuPaginate {
+    pagination: Pagination
+    data: [ShopProductSku]
+}
+
+type ShopProductSku {
+    id: Int!
+    "商品"
+    product_id: Int!
+    "属性"
+    keys: String
+    "属性值"
+    value: String
+    "销售价"
+    price: Float!
+    "库存"
+    stock: Int!
+    "重量"
+    weight: Float!
+    "货号"
+    sn: String!
+    "市场价"
+    market_price: Float
+    "销量"
+    sold_count: Int
+    "图片"
+    image: String
+    sort: Int
+    product: ShopProduct @defer(resolver: "\\app\\shop\\loaders\\Shop::getProductById", keys: "product_id")
+}
+
+input ShopProductSkuInput {
+    product_id: Int!
+    keys: String
+    value: String
+    price: Float!
+    stock: Int!
+    weight: Float!
+    sn: String!
+    market_price: Float
+    sold_count: Int
+    image: String
+    sort: Int
+}

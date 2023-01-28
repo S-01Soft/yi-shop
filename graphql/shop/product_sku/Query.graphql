@@ -1,0 +1,5 @@
+    sku(
+        id: Int! @eq
+    ): ShopProductSku
+    @model(name: "\\app\\shop\\model\\api\\ProductSkuModel")
+    @find

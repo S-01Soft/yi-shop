@@ -53,10 +53,14 @@
 				this.words = [];
 				uni.setStorageSync('keywords', []);
 			},
-			getHotWords() {
-				this.$http.post('shop/api/index/getHotWords').then(data => {
-					this.hotWords = data;
-				})
+			async getHotWords() {
+				const query = `
+					query {
+						hotWords
+					}
+				`
+				const result = await this.$gql.fetch(query);
+				this.hotWords = result.get('hotWords');
 			},
 			setWords() {
 				let index = this.words.indexOf(this.kw);

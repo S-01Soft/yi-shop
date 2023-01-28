@@ -94,19 +94,15 @@
 			}
 			//this.page = 1
 		},
-		//下拉刷新
 		onPullDownRefresh(){
 			this.page = 1
 			this.loadData('refresh');
 		},
-		//加载更多
 		onReachBottom(){
 			this.loadData();
 		},
 		methods: {
-			//加载商品 ，带下拉刷新和上滑加载
 			async loadData(type='add', loading) {
-				//没有更多直接返回
 				if(type === 'add'){
 					if(this.loadingType === 'nomore'){
 						return;
@@ -116,25 +112,43 @@
 					this.loadingType = 'more'
 				}
 				let form = {
-					cat_id: this.cat_id || 0,
+					cat_id: parseInt(this.cat_id) || 0,
 					sort: this.filterIndex,
-					priceOrder: this.priceOrder,
+					price_order: this.priceOrder,
 					kw: this.kw,
 					page: this.page
 				}
-				
-				let res = await this.$http.get('shop/api/product/getList', {params: form});
+				const query = `
+					query Debug ($cat_id: Int, $sort: Int, $price_order: Int, $kw: String, $page: Int) {
+					  products(category_id: $cat_id, sort: $sort, kw: $kw, page: $page, price_order: $price_order) {
+					    pagination {current_page, has_more}
+						data {
+					      id
+					      title
+					      description
+						  image
+						  price
+						  sold_count
+					      skus {
+							  price
+						  }
+					    }
+					  }
+					}
+				`;
+				const result = await this.$gql.fetch(query, form);
+				const { products } = result.get();
+				const { pagination } = products;
 				this.page += 1;
-				let goodsList = res.data
 				if(type === 'refresh'){
 					this.goodsList = [];
 				}
 				
-				this.goodsList = this.goodsList.concat(goodsList);
+				this.goodsList = this.goodsList.concat(products.data);
 				
-				this.loadingType = res.data.current_page >= res.data.last_page ? 'nomore' : 'more';
+				this.loadingType = pagination.has_more ? 'more' : 'nomore';
 				
-				if(type === 'refresh'){
+				if(type === 'refresh') {
 					if(loading == 1){
 						uni.hideLoading()
 					}else{

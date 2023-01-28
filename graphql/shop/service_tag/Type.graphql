@@ -1,0 +1,17 @@
+type ShopServiceTagPaginate {
+    pagination: Pagination
+    data: [ShopServiceTag]
+}
+
+type ShopServiceTag {
+    id: Int!
+    "名称"
+    title: String!
+    "描述"
+    description: String!
+}
+
+input ShopServiceTagInput {
+    title: String!
+    description: String!
+}

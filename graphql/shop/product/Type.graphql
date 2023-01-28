@@ -1,0 +1,91 @@
+type ShopProductPaginate {
+    pagination: Pagination
+    data: [ShopProduct]
+}
+
+type ShopProduct {
+    id: Int!
+    "分类"
+    category_id: Int
+    category: ShopCategory @defer(resolver: "\\app\\shop\\loaders\\Shop::getCategoryByProductId", keys: "category_id")
+    "标题"
+    title: String!
+    "描述"
+    description: String!
+    "SEO标题"
+    seo_title: String!
+    "SEO关键词"
+    seo_keywords: String!
+    "SEO_描述"
+    seo_description: String!
+    "内容"
+    content: String!
+    "图片"
+    image: [String]
+    "是否销售"
+    on_sale: Int!
+    "折扣"
+    rating: Float!
+    "销售数量"
+    sold_count: Int!
+    "单位"
+    unit_id: Int
+    unit: ShopUnit @defer(resolver: "\\app\\shop\\loaders\\Shop::getUnit", keys: "unit_id")
+    "评价数量"
+    comment_count: Int!
+    service_tags: String
+    services: [ShopServiceTag] @defer(resolver: "\\app\\shop\\loaders\\Shop::getServicesByProductId", keys: "id")
+    "首页推荐"
+    home_recommend: Int
+    "分类推荐"
+    category_recommend: Int
+    "销售价"
+    price: Float!
+    created_at: Int
+    updated_at: Int
+    create_user: Int
+    "运费模板"
+    delivery_tpl_id: Int
+    "何时扣库存"
+    stock_type: Int
+    score_persent: Float!
+    "商品类型"
+    product_type: Int!
+    "自动收货时间"
+    auto_receive_time: Int
+    attr_group: [String!]
+    attr_items: [[String!]]
+    skus: [ShopProductSku] @defer(resolver: "\\app\\shop\\loaders\\Shop::getSkusByProductId", keys: "id")
+    comments(
+        limit: Int = 10
+    ): [ShopComment] @defer(resolver: "\\app\\shop\\loaders\\Shop::getCommentsByProductId", keys: "id")
+    is_favorite: Boolean @defer(resolver: "\\app\\shop\\loaders\\Shop::getIsFavoriteByProductId", keys: "id")
+    favorite: ShopFavorite @defer(resolver: "\\app\\shop\\loaders\\Shop::getFavoriteByProductId", keys: "id")
+}
+
+
+input ShopProductInput {
+    category_id: Int
+    title: String!
+    description: String!
+    seo_title: String!
+    seo_keywords: String!
+    seo_description: String!
+    content: String!
+    image: String!
+    on_sale: Int!
+    rating: Float!
+    sold_count: Int!
+    unit_id: Int
+    comment_count: Int!
+    service_tags: String
+    home_recommend: Int
+    category_recommend: Int
+    price: Float!
+    create_user: Int
+    delivery_tpl_id: Int
+    stock_type: Int
+    score_persent: Float!
+    product_type: Int!
+    auto_receive_time: Int
+}

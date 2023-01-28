@@ -117,12 +117,18 @@
 				}).catch(e => {})
 			},
 			//删除
-			deleteCartItem(index) {
+			async deleteCartItem(index) {
 				uni.showLoading()
-				this.$http.post('shop/api/cart/delete', {ids: [this.cartList[index].id]}).then(res => {
-					uni.hideLoading()
-					this.getCartProducts()
-				})
+				const query = `
+					mutation($ids: [Int!]!) {
+						deleteCart(ids: $ids)
+					}
+				`
+				const result = await this.$gql.fetch(query, {
+					ids: [this.cartList[index].id]
+				});
+				uni.hideLoading()
+				this.getCartProducts()
 			},
 			goProductDetail(item) {
 				if (!item.product) return
@@ -134,7 +140,7 @@
 			clearCart() {
 				uni.showModal({
 					content: '清空购物车？',
-					success: (e) => {
+					success: async (e) => {
 						if (e.confirm) {
 							uni.showLoading()
 							this.clearCartProducts().then(res => {
@@ -167,12 +173,11 @@
 						url: '/pages/order/create'
 					})
 				})
-
 			}
 		},
 		onPullDownRefresh() {
 			this.getCartProducts().then(res => {
-					uni.stopPullDownRefresh()
+				uni.stopPullDownRefresh()
 			}).catch(e => uni.stopPullDownRefresh())
 		}
 	}

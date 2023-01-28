@@ -37,6 +37,16 @@ class ProductModel extends Model
         return $this;
     }
 
+    public function getAttrGroupAttribute($value)
+    {
+        return empty($value) ? [] : (array)json_decode($value, true);
+    }
+
+    public function getAttrItemsAttribute($value)
+    {
+        return empty($value) ? [] : (array)json_decode($value, true);
+    }
+
     public function getImageAttribute($value)
     {
         return explode(',', $this->attributes['image']);

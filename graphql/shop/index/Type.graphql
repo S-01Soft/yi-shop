@@ -1,0 +1,26 @@
+type ShopAppInfo {
+    plugins: [String!]
+    config: ShopAppInfoConfig
+}
+
+scalar ShopAppInfoConfig
+
+type ShopPage {
+    option: ShopPageOption
+    list: [ShopPageItem]
+}
+
+scalar ShopPageOption
+scalar ShopPageItem
+
+type User {
+    id: Int!
+    uid: ID
+    nickname: String!
+    username: String!
+    email: String
+    mobile: String
+    avatar: String
+    money: Float
+    score: Int
+}

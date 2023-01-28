@@ -1,0 +1,31 @@
+type ShopCategoryPaginate {
+    pagination: Pagination
+    data: [ShopCategory]
+}
+
+type ShopCategory {
+    id: Int!
+    "上级分类"
+    parent_id: Int!
+    "分类名称"
+    name: String!
+    "图标"
+    image: String
+    "排序"
+    sort: Int!
+    "启用"
+    status: Int!
+    "创建时间"
+    created_at: Int
+    "更新时间"
+    updated_at: Int
+    childlist: [ShopCategory]
+}
+
+input ShopCategoryInput {
+    parent_id: Int!
+    name: String!
+    image: String
+    sort: Int!
+    status: Int!
+}

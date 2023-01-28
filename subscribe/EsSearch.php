@@ -49,7 +49,7 @@ class EsSearch
         list($index, $es) = $payload->params;
         $config = get_module_group_config($this->name, 'search');
         if ($config['engine'] != 'es' || $config['index'] != $index) return;
-        ProductModel::with(['skus', 'tags'])->whereRaw("1=1")->chunkById(100, function($rows) use ($index, $es) {
+        ProductModel::with(['skus', 'tags', 'unit'])->whereRaw("1=1")->chunkById(100, function($rows) use ($index, $es) {
             $result = [];
             foreach ($rows as $row) {
                 $result[] = ['index'=> ['_index' => $index, '_id' => $row['id'], '_type' => '_doc']];
@@ -104,11 +104,14 @@ class EsSearch
             'tag_ids' => array_column($row->tags->toArray(), 'tag_id'),
             'title' => $row->title,
             'description' => $row->description,
+            "attr_group" => $row->attr_group,
+            'attr_items' => $row->attr_items,
             'image' => $row->image,
             'category_recommend' => $row->category_recommend,
             'on_sale' => $row->on_sale,
             'sold_count' => $row->sold_count,
             'price' => $row->price,
+            'unit' => $row->unit,
             'created_at' => $row->created_at->timestamp,
             'updated_at' => $row->updated_at->timestamp,
             'skus' => $row->skus->toArray()

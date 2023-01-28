@@ -122,15 +122,23 @@
 			getDefaultPayType() {
 				this.payType = this.payTypeArr[0] || '';
 			},
-			getData() {
-				this.$http.get('shop/api/order/info', {
-					params: {
-						order_sn: this.order_sn,
+			async getData() {
+				const query = `
+					query($order_sn: String!) {
+						order(order_sn: $order_sn) {
+							is_pay
+							status
+							order_price
+							created_at
+						}
 					}
-				}).then(data => {
-					this.orderInfo = data
-					this.checkOrder()
-				}).catch(e => {})
+				`
+				const result = await this.$gql.fetch(query, { order_sn: this.order_sn });
+				const err = result.getError('order');
+				if (err) return result.show(err);
+				const { order } = result.get();
+				this.orderInfo = order;
+				this.checkOrder()
 			},
 			async handleTransferOk() {
 				this.navTo()

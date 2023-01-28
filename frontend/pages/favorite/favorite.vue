@@ -37,12 +37,34 @@
 			async getList() {
 				let page = this.page + 1;
 				this.status = 'loading'
-				const data = await this.$http.post('shop/api/user/favoriteList?page=' + page);
-				if (data.current_page >= data.last_page) {
+				const query = `
+					query ($page: Int) {
+					  favorites (page: $page) {
+					    pagination {
+					      current_page
+					      last_page
+					    }
+					    data {
+					      product {
+					        id
+					        title
+					        image
+					        price
+					      }
+					    }
+					  }
+					}
+				`
+				const result = await this.$gql.fetch(query, {
+					page
+				});
+				const { favorites } = result.get();
+				const { pagination, data } = favorites;
+				if (pagination.current_page >= pagination.last_page) {
 					this.status = 'nomore';
 				} else this.status = 'loadmore';
-				this.page = data.current_page;
-				this.list = this.list.concat(data.data);
+				this.page = pagination.current_page;
+				this.list = this.list.concat(data);
 			},
 			goDetail(item) {
 				uni.navigateTo({

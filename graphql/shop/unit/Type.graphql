@@ -1,0 +1,20 @@
+type ShopUnitPaginate {
+    pagination: Pagination
+    data: [ShopUnit]
+}
+
+type ShopUnit {
+    id: Int!
+    "单位名称"
+    name: String!
+    "单位符号"
+    code: String!
+    "是否默认"
+    is_default: Int!
+}
+
+input ShopUnitInput {
+    name: String!
+    code: String!
+    is_default: Int!
+}

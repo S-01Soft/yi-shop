@@ -160,7 +160,15 @@
                 "navigationBarTitleText": "清除缓存",
                 "enablePullDownRefresh": false
             }
-        }
+        }, {
+			"path": "pages/message/index",
+			"style": {
+				"navigationBarTitleText": "消息",
+				"enablePullDownRefresh": false
+			}
+		}, {
+			"path": "pages/message/show"
+		}
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

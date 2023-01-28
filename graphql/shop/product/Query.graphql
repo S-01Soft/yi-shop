@@ -1,0 +1,34 @@
+    product(
+        id: Int! @eq
+    ): ShopProduct @model(name: "\\app\\shop\\model\\api\\ProductModel") @find
+
+    products(
+        "商品分类ID"
+        category_id: Int
+        "是否含子分类"
+        has_children: Boolean
+        "当前页码"
+        page: Int
+        "每页条数，最大100"
+        per_page: Int
+        "标签ID"
+        tag_id: Int
+        "0综合，1按销量，2按价格"
+        sort: Int = 0
+        "1按价格由低到高 2按价格由高到低"
+        price_order: Int = 1
+        "关键词"
+        kw: String
+    ): ShopProductPaginate
+    @model(name: "\\app\\shop\\model\\api\\ProductModel")
+    @where(value: { on_sale: 1 })
+    @resolver(prefix: "\\app\\shop\\resolvers\\Product@", name: ["getByCategoryId", "getByTagId", "searchByKeyword", "order"])
+    @paginate(simple: true)
+
+    search: ShopProductPaginate
+    @resolver(name: "\\app\\shop\\resolvers\\Product@search")
+
+    sproducts: ShopProductPaginate
+    @model(name: "\\app\\shop\\model\\api\\ProductModel")
+    @where(value: { on_sale: 1 })
+    @paginate(simple: true)

@@ -1,7 +1,7 @@
 <template>
 	<yi-modal title="申请售后" v-model="show" @ok="submit" @cancel="close" class="after-sale-box">
 		<view class="container">
-			<u-alert type = "error" description = "为避免不必要的纠纷，提交售后前请与商家协商一致"></u-alert>
+			<u-alert v-if="appInfo.config.shop && appInfo.config.shop.order.post_sale_tips" type = "error" :description = "appInfo.config.shop.order.post_sale_tips"></u-alert>
 
 			<view class="list">
 				<view class="item">
@@ -40,6 +40,7 @@
 </template>
 
 <script>
+	import { mapState } from 'vuex'
 	export default {
 		data() {
 			return {
@@ -63,6 +64,9 @@
 			}
 		},
 		computed: {
+			...mapState({
+				appInfo: state => state.appInfo
+			}),
 			text() {
 				let text = ''
 				this.picker.columns[0].forEach(item => {
@@ -74,17 +78,23 @@
 		watch: {
 		},
 		methods: {
-			submit() {
+			async submit() {
 				uni.showLoading()
 				let form = Object.assign({order_sn: this.value}, this.form)
-				this.$http.post('shop/api/order/applyRefund', form).then(data => {
-					uni.hideLoading()
+				const query = `
+					mutation ($order_sn: String!, $no: String, $remark: String, $type: Int!) {
+						applyPostSale(order_sn: $order_sn, no: $no, remark: $remark, type: $type)
+					}
+				`
+				const result = await this.$gql.fetch(query, form);
+				uni.hideLoading()
+				const err = result.getError('applyPostSale');
+				if (err) result.show(err);
+				else {
 					this.initForm()
 					this.close()
 					this.$emit('callback')
-				}).catch(e => {
-					uni.hideLoading()
-				})
+				}
 			},
 			handleChange(e) {
 				this.form.type = e.detail.value[0].value;

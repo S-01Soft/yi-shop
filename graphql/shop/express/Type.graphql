@@ -1,0 +1,17 @@
+type ShopExpressPaginate {
+    pagination: Pagination
+    data: [ShopExpress]
+}
+
+type ShopExpress {
+    id: Int!
+    "快递公司编号"
+    code: String!
+    "快递公司名称"
+    name: String!
+}
+
+input ShopExpressInput {
+    code: String!
+    name: String!
+}

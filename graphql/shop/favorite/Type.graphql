@@ -1,0 +1,21 @@
+type ShopFavoritePaginate {
+    pagination: Pagination
+    data: [ShopFavorite]
+}
+
+type ShopFavorite {
+    id: Int!
+    "用户"
+    user_id: Int
+    "商品"
+    product_id: Int
+    product: ShopProduct @defer(resolver: "\\app\\shop\\loaders\\Shop::getProductById", keys: "product_id")
+    "创建时间"
+    created_at: Int
+    created_at_txt: String @alias(key: "created_at") @date
+}
+
+input ShopFavoriteInput {
+    user_id: Int
+    product_id: Int
+}

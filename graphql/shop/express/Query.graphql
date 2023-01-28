@@ -1,0 +1,7 @@
+
+    "订单物流信息"
+    expressTraces(
+        order_sn: String!
+    ): [ShopOrderExpressInfo]
+    @auth(login: true)
+    @resolver(name: "\\app\\shop\\resolvers\\Order@getExpressTraces")

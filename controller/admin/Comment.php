@@ -3,7 +3,7 @@
 namespace app\shop\controller\admin;
 
 /**
- * @Menu(title=Shop Comment,weigh=10000,ignore=add|edit|all|select|tree|tree_array|tree_list|imports|exports,ismenu=1)
+ * @Menu(title=Shop Comment,weigh=86000,ignore=add|edit|all|select|tree|tree_array|tree_list|imports|exports,ismenu=1)
  */
 class Comment extends Base 
 {

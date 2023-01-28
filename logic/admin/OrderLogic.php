@@ -72,7 +72,7 @@ class OrderLogic extends Logic
     public function ship($params)
     {
         extract($params);
-        $order = $this->static::find($id);
+        $order = $this->static::with(['express'])->find($id);
         if (empty($order)) throw new Exception("订单不存在");        
         if ($order->is_delivery == 1) throw new Exception("该订单已发货");
         if ($order->is_pay == 0) throw new Exception("该订单未支付");

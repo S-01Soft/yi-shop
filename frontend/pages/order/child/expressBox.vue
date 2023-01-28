@@ -44,19 +44,24 @@
 			order: {}
 		},
 		methods: {
-			open() {
+			async open() {
 				this.show = true;
 				if (this.order.express_code == 'local') return ;
 				this.loading = true
 				this.error = null;
 				this.content = [];
-				this.$http.post('shop/api/order/getExpressInfo', {order_sn: this.order.order_sn}).then(data => {
-					this.loading = false
-					this.content = data;
-				}).catch(res => {
-					this.error = res.message
-					this.loading = false
-				})
+				const query = `
+					query ($order_sn: String!) {
+						expressTraces(order_sn: $order_sn) {
+							time, content
+						}
+					}
+				`
+				const result = await this.$gql.fetch(query, { order_sn: this.order.order_sn });
+				const err = result.getError('expressTraces');
+				this.loading = false;
+				if (err) return result.show(err);
+				this.content = result.get('expressTraces');
 			},
 			close() {
 				this.show = false;

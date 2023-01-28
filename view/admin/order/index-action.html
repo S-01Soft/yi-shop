@@ -1,13 +1,9 @@
-<a-dropdown>
-    <a class="open-dialog" title="查看订单" :href="'/shop/admin/order/show?id=' + row.id">查看 <a-icon type="down" v-if="hasMoreAction(row)"></a-icon></a> 
-    <a-menu style="min-width: 80px;text-align: center;" slot="overlay" v-if="hasMoreAction(row)">
-        {:ev('ShopOrderBeforeAction')}
-        <a-menu-item v-if="isShow('pay', row)" @click="handlePay(row)">付款</a-menu-item>
-        <a-menu-item v-if="isShow('ship', row)" @click="handleShip(row)">发货</a-menu-item>
-        <a-menu-item v-if="isShow('refundAuto', row)" @click="handleRefund(row, 1)">原路退款</a-menu-item>
-        <a-menu-item v-if="isShow('refund', row)" @click="handleRefund(row, 2)">手动退款</a-menu-item>
-        <a-menu-item v-if="isShow('exchange', row)" @click="handleExchange(row)">换货</a-menu-item>
-        <a-menu-item v-if="isShow('reject', row)" @click="handleReject(row)">拒绝售后</a-menu-item>
-        {:ev('ShopOrderAfterAction')}
-    </a-menu>
-</a-dropdown>
+
+
+    <a class="open-dialog" title="查看订单" :href="'/shop/admin/order/show?id=' + row.id">查看</a> 
+    <a v-if="isShow('pay', row)" @click="handlePay(row)">付款</a>
+    <a v-if="isShow('ship', row)" @click="handleShip(row)">发货</a>
+    <a v-if="isShow('refundAuto', row)" @click="handleRefund(row, 1)">原路退款</a>
+    <a v-if="isShow('refund', row)" @click="handleRefund(row, 2)">手动退款</a>
+    <a v-if="isShow('exchange', row)" @click="handleExchange(row)">换货</a>
+    <a v-if="isShow('reject', row)" @click="handleReject(row)">拒绝售后</a>

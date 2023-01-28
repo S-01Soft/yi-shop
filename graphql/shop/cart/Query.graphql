@@ -1,0 +1,6 @@
+    "我的购物车"
+    carts: [ShopCart]
+    @auth(login: true)
+    @model(name: "\\app\\shop\\model\\api\\CartModel")
+    @resolver(prefix: "\\app\\shop\\resolvers\\Cart@", name: ["bySelf"])
+    @list(limit: 100)

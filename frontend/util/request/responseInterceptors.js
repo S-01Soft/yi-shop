@@ -6,7 +6,9 @@ module.exports = (vm) => {
     uni.$u.http.interceptors.response.use((response) => {
         const data = response.data
 		uni.hideLoading()
-        if (data.code !== 1) {
+		if (data.code == 1) return data.data;
+		else if (data.code == undefined) return data;
+        else if (data.code !== 1) {
 			switch (data.code) {
 				case 9999:
 					return Promise.reject(data);
@@ -16,7 +18,6 @@ module.exports = (vm) => {
 					break;
 			}
         }
-        return data.data
     }, (response) => {
 		let message = '网络错误';
 		switch (response.statusCode) {

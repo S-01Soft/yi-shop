@@ -1,0 +1,14 @@
+    "应用信息"
+    appInfo: ShopAppInfo
+    @resolver(name: "\\app\\shop\\logic\\api\\IndexLogic::instance->getAppInfo")
+
+    "页面配置"
+    page(
+        id: Int
+    ): ShopPage
+    @resolver(name: "\\app\\shop\\resolvers\\Index@getPage")
+
+    userinfo: User @auth(login: true) @resolver(name: "\\app\\shop\\resolvers\\User@getInfo")
+
+    "热门搜索词"
+    hotWords: [String!] @resolver(name: "\\app\\shop\\resolvers\\Index@getHotWords")

@@ -28,11 +28,11 @@
                 </div>
             </div>
         </div>
-        {foreach $data as $product} 
+        {foreach $data['data'] as $product} 
         {php}
         $p_list = [];
-        foreach($product->skus as $sku) {
-            $p_list[$sku->value] = ['id' => $sku->id, 'price' => $sku->price, 'stock' => $sku->stock, 'file' => $sku->file];
+        foreach($product['skus'] as $sku) {
+            $p_list[$sku['value']] = ['id' => $sku['id'], 'price' => $sku['price'], 'stock' => $sku['stock'] ];
         }
         {/php}
         <div class="row mb-3 bg-white pt-2 pb-2 product-item" data-id="{$product.id}" data-skus='{:json_encode($p_list)}'>
@@ -46,11 +46,10 @@
                 <div>
                     <a href="/shop/index/product/info.html?id={$product.id}" class="product-desc text-sm text-muted mb-2">{$product.description}</a>
                 </div>
-                <div class=" m-title">价格 <span class="product-price">￥{$product->skus[0]->price}</span> <span class="ml-2">库存</span>  <span class="product-stock">{$product->skus[0]->stock}</span> <span>{$product->unit->code}</span></div>
+                <div class=" m-title">价格 <span class="product-price">￥{$product['skus'][0]['price']}</span> <span class="ml-2">库存</span>  <span class="product-stock">{$product['skus'][0]['stock']}</span> <span>{$product['unit']['code']}</span></div>
                 <div class="product-attr">
-                    {php} $product->decars(); {/php}
-                    {foreach $product->attrItems as $index => $item} 
-                    <span class="text-bolder m-title">{$product->attrGroup[$index]}</span>
+                    {foreach $product['attr_items'] as $index => $item} 
+                    <span class="text-bolder m-title">{$product['attr_group'][$index]}</span>
                     <div>
                         {foreach $item as $i => $v} 
                         <span data-gid="{$index}" data-attr="{$i}" class="product-attr-item {if $i == 0}active{/if}">{$v}</span>
@@ -67,11 +66,9 @@
                     </span>
                 </div>
                 {if get_user()->isLogin()}
-                <a href="{$product->skus[0]->file}" target="_blank" class="down-file mb-2 btn btn-outline btn-outline-primary w-100 {if empty($product->skus[0]->file)}hidden{/if}">查看规格书</a>
                 <button class="w-100 btn btn-sm btn-primary btn-add-cart">加入购物车</button>
                 <a href="/shop/index/cart/index.html" class="w-100 mt-2 btn btn-sm">查看购物车</a>
                 {else}
-                <a href="{$product->skus[0]->file}" target="_blank" class="down-file mb-2 btn btn-outline btn-outline-primary w-100 {if empty($product->skus[0]->file)}hidden{/if}">查看规格书</a>
                 <a href="/login.html" class="w-100 btn btn-primary btn-add-cart btn-sm">加入购物车</a>
                 <a href="/login.html" class="w-100 mt-2 btn btn-sm">查看购物车</a>
                 {/if}
@@ -108,7 +105,7 @@
             </div>
         </div>
         <div class="row mt-3">
-            {foreach $data as $item} 
+            {foreach $data['data'] as $item} 
             <div class="col-6 col-md-4 col-lg-3">
                 {:widget('shop_product_item', ['product' => $item])}
             </div>
@@ -146,9 +143,6 @@
             var sku = parent.data('skus')[getCurrentAttr(id)];
             $('.product-item[data-id=' + id + '] .product-price').text('￥' + sku.price);
             $('.product-item[data-id=' + id + '] .product-stock').text( sku.stock);
-            var f_el = $('.product-item[data-id=' + id + '] .down-file');
-            if (sku.file) f_el.attr('href', sku.file ).removeClass('hidden');
-            else f_el.addClass('hidden');
         });
         $('.btn-add-cart').click(function() {
             var parent = $($(this).parents('.product-item')[0]);

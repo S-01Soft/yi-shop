@@ -32,10 +32,10 @@
 				<text>订单编号</text>
 				<text>{{orderInfo.order_sn}}</text>
 			</view>
-			<!-- <view class="desc-item">
-				<text>订单状态</text>
-				<text>{{orderInfo.state_tip}}</text>
-			</view> -->
+			<view class="desc-item">
+				<text>用户留言</text>
+				<text>{{orderInfo.remark}}</text>
+			</view>
 			<view class="desc-item" v-if="orderInfo.express_no">
 				<text>快递单号</text>
 				<text>{{orderInfo.express_name}} {{orderInfo.express_no}}</text>
@@ -59,10 +59,6 @@
 			<view v-if="orderInfo.score_price > 0" class="desc-item coupon">
 				<text>积分抵扣</text>
 				<text>- ￥{{orderInfo.score_price || '0.00'}}</text>
-			</view>
-			<view v-if="orderInfo.is_pay_deposit > 0" class="desc-item coupon">
-				<text>定金</text>
-				<text>- ￥{{orderInfo.deposit_price || '0.00'}}</text>
 			</view>
 			<view class="desc-item total">
 				<text>应付总额</text>
@@ -99,12 +95,56 @@
 			this.loadData()
 		},
 		methods: {
-			loadData() {
-				this.$http.get('shop/api/order/info', {params: {
-					order_sn: this.order_sn
-				}}).then(data => {
-					this.orderInfo = data
-				})
+			async loadData() {
+				const query = `
+					query($order_sn: String!) {
+					  order(order_sn: $order_sn) {
+					    order_sn
+					    user_id
+					    status
+						state_tip
+					    order_price
+						products_price
+						pay_price
+						payed_price
+						score_price
+						money_price
+						delivery_price
+						discount_price
+						express_no
+						express_code
+					    created_at
+					    created_at_txt
+						remark
+					    after_sale_status_tip {
+					      tip
+					      text
+					    }
+					    after_sale_status
+					    is_delivery
+					    is_received
+					    buyer_comment
+					    products {
+							id
+							product_id
+							title
+							price
+							images
+							attributes
+							quantity
+							buyer_comment
+					    }
+					  }
+					}
+				`
+				const result = await this.$gql.fetch(query, { order_sn: this.order_sn });
+				const { order } = result.get();
+				this.orderInfo = order;
+				// this.$http.get('shop/api/order/info', {params: {
+				// 	order_sn: this.order_sn
+				// }}).then(data => {
+				// 	this.orderInfo = data
+				// })
 			},
 			toProduct(item) {
 				uni.navigateTo({
@@ -175,7 +215,7 @@
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
-					align-items: center;
+					align-items: flex-end;
 					padding: 0 16upx;
 
 					.quantity {

@@ -1,15 +1,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 const http = uni.$u.http;
+const gql = uni.$u.gql;
 import user from './modules/user'
 import cart from './modules/cart';
 import product from './modules/product';
 import share from './modules/share';
-import invoice from './modules/invoice';
 Vue.use(Vuex)
 
 const modules = {
-	user, cart, product, share, invoice
+	user, cart, product, share
 };
 const store = new Vuex.Store({
 	modules,
@@ -33,12 +33,23 @@ const store = new Vuex.Store({
 	},
 	actions: {
 		getAppInfo({ commit }) {
-			return new Promise((resolve, reject) => {
-				http.post('shop/api/index/appInfo').then(data => {
-					uni.setStorageSync('appInfo', data);
-					commit('SAVE_APP_INFO', data);
-					resolve(data);
-				})
+			return new Promise(async (resolve, reject) => {
+				const query = `
+					query {
+						appInfo {
+							plugins, config
+						}
+					}
+				`
+				const result = await gql.fetch(query);
+				const { appInfo } = result.get();
+				commit('SAVE_APP_INFO', appInfo);
+				resolve(appInfo);
+				// http.post('shop/api/index/appInfo').then(data => {
+				// 	uni.setStorageSync('appInfo', data);
+				// 	commit('SAVE_APP_INFO', data);
+				// 	resolve(data);
+				// })
 			})
 		},
 		getAreas({ state, commit }) {

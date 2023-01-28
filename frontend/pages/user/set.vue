@@ -51,7 +51,7 @@
 		</u--form>
 		
 		<view style="padding: 20rpx;" class="u-block">
-			<u-button @click="submit" style="margin-top: 20rpx;" type="primary">提交</u-button>			
+			<u-button @click="submit" style="margin-top: 20rpx;" type="error">提交</u-button>			
 		</view>
 		
 		<yi-modal v-model="verify.show" :title="verify.title" @ok="verifyOk" @cancel="verify.show = false">

@@ -7,6 +7,11 @@ uni.$u.http.setConfig(config => {
     return config
 })
 
+uni.$u.gql.setConfig(config => {
+	config.url = Config.graphqlUrl;
+	return config;
+})
+
 module.exports = (vm) => {
     require('./requestInterceptors')(vm)
     require('./responseInterceptors')(vm)

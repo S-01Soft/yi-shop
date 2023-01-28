@@ -21,8 +21,8 @@
                 <div class="mt-3 m-title">库存 <span class="product-stock">{$product->skus[0]->stock}</span></div>
 
                 <div class="mt-3">
-                    {foreach $product->attrItems as $index => $item} 
-                    <span class="text-bolder">{$product->attrGroup[$index]}</span>
+                    {foreach $product->attr_items as $index => $item} 
+                    <span class="text-bolder">{$product->attr_group[$index]}</span>
                     <div>
                         {foreach $item as $i => $v} 
                         <span data-gid="{$index}" data-attr="{$i}" class="product-attr-item {if $i == 0}attr-active{/if}">{$v}</span>
@@ -43,7 +43,6 @@
                         {else} 
                         <a class="btn btn-sm btn-danger" href="/login.html">加入购物车</a>
                         {/if}
-                        <a href="{$product->skus[0]->file}" target="_blank" class="down-file btn btn-outline btn-outline-primary {if empty($product->skus[0]->file)}hidden{/if}">查看规格书</a>
                     </div>
                 </div>
             </div>
@@ -113,13 +112,12 @@
     {php}
     $p_list = [];
     foreach($product->skus as $sku) {
-        $p_list[$sku->value] = ['id' => $sku->id, 'price' => $sku->price, 'stock' => $sku->stock, 'file' => $sku->file];
+        $p_list[$sku->value] = ['id' => $sku->id, 'price' => $sku->price, 'stock' => $sku->stock];
     }
     {/php}
     */
     Yi.ready(function() {
         var p_list = {:json_encode($p_list)};
-        console.log(p_list);
         function getCurrentAttr() 
         {
             var attrs = [];
@@ -136,14 +134,8 @@
             var sku = p_list[getCurrentAttr()];
             $('.product-price').text('￥' + sku.price)
             $('.product-stock').text(sku.stock)
-            if (sku.file) {
-                $('.down-file').attr('href', sku.file).removeClass('hidden')
-            } else {
-                $('.down-file').addClass('hidden')
-            }
         });
         $('.add-cart').click(function() {
-            console.log(getCurrentAttr());
             var sku_id = p_list[getCurrentAttr()].id;
             var data = {
                 sku_id: sku_id, quantity: $('#quantity').val()

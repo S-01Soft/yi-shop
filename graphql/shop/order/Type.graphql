@@ -1,0 +1,170 @@
+type ShopOrderPaginate {
+    pagination: Pagination
+    data: [ShopOrder]
+}
+
+type ShopOrder {
+    id: Int!
+    "订单编号"
+    order_sn: String!
+    "用户"
+    user_id: Int
+    "是否已支付"
+    is_pay: Int
+    "支付时间"
+    pay_time: Int
+    "是否发货"
+    is_delivery: Int
+    "发货时间"
+    delivery: Int
+    is_received: Int
+    received_time: Int
+    "快递公司编号"
+    express_code: String
+    express: ShopExpress @defer(resolver: "\\app\\shop\\loaders\\Shop::getExpressByCode", keys: "express_code")
+    "快递单号"
+    express_no: String
+    "订单状态"
+    status: Int
+    "联系人"
+    contactor: String!
+    "联系电话"
+    contactor_phone: String!
+    "送货地址"
+    address: String
+    "运费"
+    delivery_price: Float
+    "订单金额"
+    order_price: Float
+    "应付金额"
+    pay_price: Float
+    "支付平台"
+    pay_type: String
+    "支付方式"
+    pay_method: String
+    "商品总额"
+    products_price: Float
+    "优惠金额"
+    discount_price: Float
+    "已付金额"
+    payed_price: Float
+    "买家是否评价"
+    buyer_comment: Int
+    "卖家是否评价"
+    saler_comment: Int
+    "买家备注"
+    saler_remark: String
+    "创建时间"
+    created_at: Int
+    created_at_txt: String @alias(key: "created_at") @date(formatter: "Y-m-d H:i")
+    "最后更新"
+    updated_at: Int
+    "删除时间"
+    deleted_at: Int
+    "用户备注"
+    remark: String
+    "订单类型"
+    order_type: Int
+    "团购状态"
+    groupon_status: Int
+    "out_trade_no"
+    order_sn_re: String
+    "售后买家留言"
+    after_buyer_remark: String
+    "售后卖家留言"
+    after_saler_remark: String
+    "售后状态"
+    after_sale_status: Int
+    after_sale_status_tip: ShopAfterSaleStatus
+    "售后数据"
+    after_sale_data: ShopOrderAfterSaleData
+    "退款金额"
+    refund_fee: Float
+    score_price: Float!
+    use_score: Int!
+    money_price: Float!
+    "是否显示"
+    is_show: Int!
+    "用户删除时间"
+    delete_time: Int!
+    state_tip: String
+    products: [ShopOrderProduct] @defer(resolver: "\\app\\shop\\loaders\\Shop::getOrderProductsByOrderId", keys: "id")
+}
+
+scalar ShopOrderAfterSaleData
+
+type ShopAfterSaleStatus {
+    tip: String
+    text: String
+}
+
+type ShopOrderExpressInfo {
+    time: String
+    content: String
+}
+
+type ShopOrderPrice {
+    "运费"
+    delivery_price: Float!
+    "优惠金额"
+    discount_price: Float!
+    "余额可抵扣金额"
+    money_price: Float!
+    "余额抵扣金额"
+    use_money_price: Float!
+    "积分可抵扣金额"
+    score_price: Float!
+    "积分抵扣金额"
+    use_score_price: Float!
+    "订单总金额"
+    order_price: Float!
+    "商品总额"
+    products_price: Float!
+}
+
+input ShopProductInfoInput {
+    sku_id: Int!
+    quantity: Int!
+}
+
+input ShopOrderInput {
+    order_sn: String!
+    user_id: Int
+    is_pay: Int
+    pay_time: Int
+    is_delivery: Int
+    delivery: Int
+    is_received: Int
+    received_time: Int
+    express_code: String
+    express_no: String
+    status: Int
+    contactor: String!
+    contactor_phone: String!
+    address: String
+    delivery_price: Float
+    order_price: Float
+    pay_price: Float
+    pay_type: String
+    pay_method: String
+    products_price: Float
+    discount_price: Float
+    payed_price: Float
+    buyer_comment: Int
+    saler_comment: Int
+    saler_remark: String
+    remark: String
+    order_type: Int
+    groupon_status: Int
+    order_sn_re: String
+    after_buyer_remark: String
+    after_saler_remark: String
+    after_sale_status: Int
+    after_sale_data: String
+    refund_fee: Float
+    score_price: Float!
+    use_score: Int!
+    money_price: Float!
+    is_show: Int!
+    delete_time: Int!
+}

@@ -52,15 +52,15 @@ class ProductLogic extends Logic
         $per_page = min($per_page, 50);
         $query = $this->static::with(['skus' => function($q) {
             $q->orderBy('sort', 'asc');
-        }])->where('on_sale', 1);
+        }, 'unit'])->where('on_sale', 1);
         if (!empty($tag_id)) {
             $ids = TagProductsModel::where('tag_id', $tag_id)->pluck('product_id')->toArray(); 
             $query->whereIn('id', $ids);
         }
-        if (!empty($cat_id)) {
-            $query->where(function ($query) use ($cat_id) {
+        if (!empty($category_id)) {
+            $query->where(function ($query) use ($category_id) {
                 $categoryLogic = CategoryLogic::instance();
-                $query->whereIn('category_id', array_column($categoryLogic->getChildren($cat_id, true), 'id'));
+                $query->whereIn('category_id', array_column($categoryLogic->getChildren($category_id, true), 'id'));
             });
         }
         if (!empty($kw)) {
@@ -81,10 +81,10 @@ class ProductLogic extends Logic
                 break;
             }
             case 2: {
-                if ($priceOrder == 1) {
+                if ($price_order == 1) {
                     $query->orderBy('price', 'ASC');
                 }
-                if ($priceOrder == 2) {
+                if ($price_order == 2) {
                     $query->orderBy('price', 'DESC');
                 }
                 break;
@@ -92,7 +92,7 @@ class ProductLogic extends Logic
         }
         $payload = (object)['productModel' => $query];
         event('ShopBeforeGetCatProducts', $payload);
-        return $payload->productModel->paginate($per_page);
+        return $payload->productModel->paginate($per_page)->toArray();
     }
 
     public function getComments($attributes)

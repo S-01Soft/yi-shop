@@ -192,6 +192,9 @@ class ProductLogic extends Logic
         // 删除旧数据
         ProductSkuModel::where('product_id', $product->id)->whereNotIn('id', $sku_ids)->delete();
         $product->price = isset($skus_prices) ? min($skus_prices) : 0;
+        list($attrGroup, $attrItems) = $this->parseAttrs($skus);
+        $product->attr_group = $attrGroup;
+        $product->attr_items = $attrItems;
         $payload = (object)[
             'product' => $product,
             'result' => $result,
@@ -200,6 +203,24 @@ class ProductLogic extends Logic
         event('CreateOrUpdateProduct', $payload);
         $payload->product->save();
         return $payload->result;
+    }
+
+    public function parseAttrs($skus)
+    {
+        $attrItems = [];
+        $attrGroup = [];
+        if (!empty($skus)) {
+            $attrGroup = explode(',', $skus[0]['keys']);
+            $result = [];
+            foreach ($skus as $i => $item) {
+                $result[] = explode(',', $item['value']);
+            }
+            $attrItems = reverse_descartes($result);
+        }
+        return [
+            json_encode($attrGroup, JSON_UNESCAPED_UNICODE),
+            json_encode($attrItems, JSON_UNESCAPED_UNICODE)
+        ];
     }
 
 }

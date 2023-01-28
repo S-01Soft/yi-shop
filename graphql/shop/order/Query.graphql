@@ -1,0 +1,30 @@
+    "获取订单金额"
+    orderPrice(
+        address_id: Int!
+        use_money: Boolean = false
+        use_score: Boolean = false
+        product: ShopProductInfoInput
+    ): ShopOrderPrice
+    @auth(login: true)
+    @resolver(name: "\\app\\shop\\resolvers\\Order@getPrice")
+
+    "订单信息"
+    order(
+        order_sn: String! @eq
+    ): ShopOrder
+    @auth(login: true)
+    @model(name: "\\app\\shop\\model\\api\\OrderModel")
+    @resolver(name: "\\app\\shop\\resolvers\\Order@bySelf")
+    @find
+
+    "订单分页"
+    orders(
+        state: Int
+        page: Int = 1
+    ): ShopOrderPaginate
+    @auth(login: true)
+    @model(name: "\\app\\shop\\model\\api\\OrderModel")
+    @where(value: { delete_time: 0 })
+    @order(value: { created_at: "desc" })
+    @resolver(prefix: "\\app\\shop\\resolvers\\Order@", name: ["bySelf", "byState"])
+    @paginate

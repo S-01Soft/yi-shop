@@ -1,0 +1,33 @@
+type ShopCartPaginate {
+    pagination: Pagination
+    data: [ShopCart]
+}
+
+type ShopCart {
+    id: Int!
+    "用户"
+    user_id: Int
+    "商品"
+    product_id: Int
+    product: ShopProduct @defer(resolver: "\\app\\shop\\loaders\\Shop::getProductById", keys: "product_id")
+    "SKU"
+    sku_id: Int
+    sku: ShopProductSku @defer(resolver: "\\app\\shop\\loaders\\Shop::getSkuById", keys: "sku_id")
+    "销售价"
+    price: Float
+    "数量"
+    quantity: Int
+    "是否选中"
+    is_selected: Int
+    created_at: Int
+    updated_at: Int
+}
+
+input ShopCartInput {
+    user_id: Int
+    product_id: Int
+    sku_id: Int
+    price: Float
+    quantity: Int
+    is_selected: Int
+}

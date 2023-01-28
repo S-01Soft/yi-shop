@@ -22,6 +22,8 @@ class SkuLogic extends Logic
     public $order_price = 0; // 订单最终价格
     public $use_score_price = 0;
     public $use_money_price = 0;
+    public $_use_money = false;
+    public $_use_score = false;
     protected $address = null;
 
     protected function initialize()
@@ -209,6 +211,18 @@ class SkuLogic extends Logic
         return $payload->skuLogic;
     }
 
+    public function useMoney($use_money)
+    {
+        $this->_use_money = $use_money;
+        return $this;
+    }
+
+    public function useScore($use_score)
+    {
+        $this->_use_score = $use_score;
+        return $this;
+    }
+
     /**
      * 计算积分可抵扣金额
      */
@@ -224,7 +238,7 @@ class SkuLogic extends Logic
         $score_price = number_format(get_user()->score / $score_to_money, 2, '.', '');
         $price = min($price, $score_price);
         $this->score_price = $price;
-        if (request()->post('use_score')) {
+        if ($this->_use_score) {
             $this->order_price = number_format((float)($this->order_price - $price), 2, '.', '');
             $this->use_score = $this->score_price * $score_to_money;
             $this->use_score_price = $price;
@@ -235,10 +249,24 @@ class SkuLogic extends Logic
     public function calcMoneyPayPrice()
     {
         $this->money_price = min(get_user()->money, $this->order_price);
-        if (request()->post('use_money')) {
+        if ($this->_use_money) {
             $this->use_money_price = $this->money_price;
             $this->order_price = number_format((float)($this->order_price - $this->money_price), 2, '.', '');
         }
         return $this;
+    }
+
+    public function toArray()
+    {
+        return [
+            'money_price' => $this->money_price,
+            'use_money_price' => $this->use_money_price,
+            'score_price' => $this->score_price,
+            'use_score_price' => $this->use_score_price,
+            'delivery_price' => $this->delivery_price,
+            'discount_price' => $this->discount_price,
+            'order_price' => $this->order_price,
+            'products_price' => $this->products_price
+        ];
     }
 }

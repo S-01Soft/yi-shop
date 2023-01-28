@@ -1,0 +1,8 @@
+    "收藏商品"
+    favorite(
+        "商品ID"
+        product_id: Int!
+        state: Boolean!
+    ): Boolean
+    @auth(login: true)
+    @resolver(name: "\\app\\shop\\resolvers\\User@favorite")

@@ -26,7 +26,7 @@
 					<view v-for="(item,index) in tabItem.orderList" :key="index"
 						class="order-item">
 						<view class="i-top b-b u-flex-row">
-							<text class="time">{{item.create_time_text}}</text>
+							<text class="time">{{item.created_at_txt}}</text>
 							<u-tag style="margin-right: 10rpx;" type="error" text="拼团" v-if="item.order_type == 1" size="mini" mode="plain"></u-tag>
 							<text class="state">{{item.state_tip}}</text>
 							<view class="after-sale-status u-flex-row" v-if="item.after_sale_status_tip" @click="showTip(item)">
@@ -186,7 +186,7 @@
 				
 			},
 			//获取订单列表
-			loadData(source, success, error) {
+			async loadData(source, success, error) {
 				//这里是将订单挂载到tab列表下
 				let index = this.tabCurrentIndex;
 				let navItem = this.navList[index];
@@ -202,20 +202,56 @@
 				if (navItem.reload == true) navItem.orderList = []
 				
 				navItem.loadingType = 'loading';
-				this.$http.get('shop/api/order', {params: {state: navItem.state, page: navItem.page}}).then(data => {
-					let orderList = data.data
-					orderList.forEach(item => {
-						navItem.orderList.push(item)
-					})
-					navItem.loaded = true
-					navItem.reload = false
-					this.$set(navItem, 'page', navItem.page + 1)
-					if (data.current_page == data.last_page) navItem.loadingType = 'nomore'
-					else navItem.loadingType = 'more';
-					typeof success == 'function' && success(data);
-				}).catch(e => { 
-					typeof error == 'function' && error(e);
+				const query = `
+					query($state: Int = 0, $page: Int = 1) {
+						orders(state: $state, page: $page) {
+							pagination {
+								last_page, current_page
+							}
+							data {
+								order_sn
+								status
+								state_tip
+								order_price
+								created_at_txt
+								order_type
+								after_sale_status_tip {
+									tip
+									text
+								}
+								after_sale_status
+								is_delivery
+								is_received
+								buyer_comment
+								express_code
+								express_no
+								express {
+									name
+								}
+								products {
+									id
+									title
+									price
+									images
+									attributes
+									quantity
+									unit
+								}
+							}
+						}
+					}
+				`
+				const result = await this.$gql.fetch(query, {state: navItem.state, page: navItem.page});
+				const { pagination, data } = result.get('orders');
+				data.forEach(item => {
+					navItem.orderList.push(item)
 				})
+				navItem.loaded = true
+				navItem.reload = false
+				this.$set(navItem, 'page', navItem.page + 1)
+				if (pagination.current_page == pagination.last_page) navItem.loadingType = 'nomore'
+				else navItem.loadingType = 'more';
+				typeof success == 'function' && success(data);
 			}, 
 			goOrderDetail(item, tabItem) {
 				uni.navigateTo({
@@ -249,13 +285,23 @@
 				}
 				uni.showModal({
 					content: '确认删除订单吗？',
-					success: (e) => {
+					success: async (e) => {
 						if (e.confirm) {
-							this.$http.post('shop/api/order/del', form).then(res => {
+							const query = `
+								mutation($order_sn: String!) {
+									deleteOrder(order_sn: $order_sn)
+								}
+							`
+							const result = await this.$gql.fetch(query, {
+								order_sn: item.order_sn
+							});
+							const err = result.getError('deleteOrder');
+							if (err) result.show(err);
+							else {
 								this.setReload(0)
 								this.setReload(this.tabCurrentIndex)
 								this.loadData()
-							})
+							}
 						}
 					}
 				})
@@ -267,13 +313,21 @@
 				}
 				uni.showModal({
 					content: '确认取消订单吗？',
-					success: (e) => {
+					success: async (e) => {
 						if (e.confirm) {
-							this.$http.post('shop/api/order/cancel', form).then(res => {
-								this.setReload(0)
-								this.setReload(this.tabCurrentIndex)
-								this.loadData()
-							})
+							const query = `
+								mutation($order_sn: String!) {
+									cancelOrder(order_sn: $order_sn) {
+										order_sn
+									}
+								}
+							`;
+							const result = await this.$gql.fetch(query, form);
+							const err = result.getError('cancelOrder');
+							if (err) return result.show(err);
+							this.setReload(0)
+							this.setReload(this.tabCurrentIndex)
+							this.loadData()
 						}
 					}
 				})
@@ -281,12 +335,22 @@
 			cancelPostSale(item) {
 				uni.showModal({
 					content: '确定取消售后吗？',
-					success: e => {
+					success: async e => {
 						if (e.confirm) {
-							this.$http.post('shop/api/order/cancelPostSale', {order_sn: item.order_sn}).then(res => {
+							const query = `
+								mutation ($order_sn: String!) {
+									cancelPostSale(order_sn: $order_sn)
+								}
+							`
+							const result = await this.$gql.fetch(query, {
+								order_sn: item.order_sn
+							});
+							const err = result.getError('cancelPostSale');
+							if (err) result.show(err);
+							else {
 								this.setReload(this.tabCurrentIndex);
 								this.loadData();
-							});							
+							}							
 						}
 					}
 				})
@@ -304,12 +368,18 @@
 				}
 				uni.showModal({
 					content: '确认收货吗？',
-					success: (e) => {
+					success: async(e) => {
 						if (e.confirm) {
-							this.$http.post('shop/api/order/receive', form).then(res => {
-								this.setReload('all')
-								this.loadData()
-							})
+							const query = `
+								mutation($order_sn: String!) {
+									receiveOrder(order_sn: $order_sn)
+								}
+							`
+							const result = await this.$gql.fetch(query, form);
+							const err = result.getError('receiveOrder');
+							if (err) return result.show(err);
+							this.setReload('all')
+							this.loadData()
 						}
 					}
 				})

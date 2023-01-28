@@ -10,10 +10,6 @@
             var key = item.key;
             if (arr.indexOf(data[i].key) == -1) data[i].visible = false;
             if (key == 'order_sn') {
-                item.customRender = function(val, row, index, column) {
-                    if (row.deleted_at) return Yi.render.html(val, row, index, column, '<div title="已删除" style="color: red;">' + val + '</div>');
-                    return val;
-                }
                 item.width = '160px';
                 item.search = {type: 'input', value: null};
             }
@@ -24,10 +20,10 @@
                     };
                     var pay = {
                         wechat: {text: '微信支付', types: {
-                            mp: '公众号', miniapp: '小程序', app: 'APP', pc: '电脑', wap: 'H5'
+                            mp: '公众号', miniapp: '小程序', app: 'APP', pc: '电脑'
                         }}, 
                         alipay: {text: '支付宝', types: {
-                            mp: '小程序', wap: 'H5', app: 'APP', pc: '电脑'
+                            mp: '小程序', h5: 'H5', app: 'APP', pc: '电脑'
                         }},
                         underline: {text: '线下支付', types: {underline: ''}},
                         system: {text: '系统支付', types: {system: ''}},
@@ -40,7 +36,7 @@
                     }
                     return Yi.render.html(val, row, index, column, el);
                 }
-                item.search = {type: 'btnGroup', value: null, options: [
+                item.search = {type: 'select', value: null, options: [
                     {value: null, label: '全部'}, {value: 0, label: '未支付'}, {value: 1, label: '已支付'}
                 ]};
             }
@@ -56,7 +52,7 @@
                     }
                     return Yi.render.html(val, row, index, column, el);
                 }
-                item.search = {type: 'btnGroup', value: null, options: [
+                item.search = {type: 'select', value: null, options: [
                     {value: null, label: '全部'}, {value: 0, label: '未发货'}, {value: 1, label: '已发货'}
                 ]};
             }
@@ -80,12 +76,8 @@
                         el = '<div style="color:red;">申请售后</div><div style="color:red;">' + types[json.type] + '</div>';
                         if (json.no) el += "<div>单号: " + json.no + "</div>";
                         el += '<div>备注：' + json.remark + '</div>';
-                    } else if (row.after_sale_status == 2) {
-                        el = '<div style="color: green;">售后完成</div><div>' + row.after_saler_remark + '</div>';
                     } else if (val == -1) el = "<div style='color: #999;'>已取消</div>";
-                    else {
-                        el = '<div style="color: #0fbe0f;">' + order_status[val] + '</div>';
-                    }
+                    else el = '<div style="color: #0fbe0f;">' + order_status[val] + '</div>';
                     return Yi.render.html(val, row, index, column, el);
                 }
                 var keys = Object.keys(order_status);
@@ -96,7 +88,7 @@
                         label: order_status[keys[j]]
                     })
                 }
-                item.search = {type: 'btnGroup', value: null, options: options};
+                item.search = {type: 'select', value: null, options: options};
             }
             if (key == 'contactor') {
                 item.customRender = function(val, row, index, column) {
@@ -108,7 +100,7 @@
                 item.width = "200px";
                 item.customRender = function(val, row, index, column) {
                     var el = '<div>商品:<span class="text-success">' + row.products_price + '</span>;'
-                            + '快递:<span class="text-success">+' + row.delivery_price + '</span><br>'
+                            + '快递:<span class="text-danger">-' + row.delivery_price + '</span><br>'
                             + '积分:<span class="text-danger">-' + row.score_price + '</span>;'
                             + '余额:<span class="text-danger">-' + row.money_price + '</span><br>'
                             + '优惠' + ':<span class="text-danger">-' + row.discount_price + '</span><br>'
@@ -116,9 +108,6 @@
                             + '已付' + ':<span class="text-success">' + row.payed_price + '</span>'
                             + '</div>';
                     return Yi.render.html(val, row, index, column, el);
-                }
-                item.search = {
-                    type: 'inputs', auto: true
                 }
             }
             
@@ -148,11 +137,6 @@
             }
  
         }
-        data.push({
-            title: '显示已删除订单', key: 'is_deleted', value: false, visible: false, search: {
-                type: 'switch'
-            }
-        });
         return data;
     });
     
@@ -178,7 +162,6 @@
                 },
                 ship: {
                     action: 1,
-                    type: 1,
                     show: false,
                     order: null
                 },
@@ -216,6 +199,9 @@
                 };
                 this.$http.post(this.ship.action, {form: form}).then(function() {
                     self.ship.show = false;
+                    self.ship.order = null;
+                    self.express_code = '';
+                    self.express_no = '';
                     self.init();
                 });
             },
@@ -230,8 +216,22 @@
                 this.refund.form.order_sn = row.order_sn;
                 this.refund.form.type = type;
                 this.refund.form.price = row.payed_price - row.refund_fee;
-                this.refund.form.remark = '退款' + this.refund.form.price + '元，返还余额：' + row.money_price + '元，返还积分：' + row.use_score;
+                this.refund.form.remark = '退款￥' + this.refund.form.price;
             },
+            doRefund: function() {
+                var self = this;
+                this.$http.post(get_url('refund'), {form: this.refund.form}).then(function() {
+                    self.refund.visible = false;
+                    self.init();
+                });
+            },
+            hasMoreAction: function(row) {
+                var keys = ['pay', 'ship', 'refundAuto', 'refund', 'reject'];
+                for (var i = 0; i < keys.length; i ++) {
+                    if (this.isShow(keys[i], row)) return true;
+                }
+            },
+            
             handleReject: function(row) {
                 this.reject.visible = true;
                 this.reject.form.order_sn = row.order_sn
@@ -250,39 +250,129 @@
                     self.init();
                 });
             },
-            hasMoreAction: function(row) {
-                var keys = ['pay', 'ship', 'refundAuto', 'refund', 'reject'];
-                for (var i = 0; i < keys.length; i ++) {
-                    if (this.isShow(keys[i], row)) return true;
-                }
-            },
             isShow: function(key, row) {
                 var show = false;
                 var postSaleData = row.after_sale_data;
                 switch (key) {
                     case 'pay': 
                         show = row.status != -1 && row.is_pay == 0;
-                        break;
+                    break;
                     case 'ship':
-                        show = row.status != -1 && row.is_delivery == 0;
-                        break;
+                        show = row.status != -1 && row.is_delivery == 0 && row.is_pay == 1;
+                    break;
                     case 'refundAuto': 
                         show = row.is_pay == 1 && row.refund_fee < row.order_price && (row.after_sale_status == 1 || row.groupon_status == 1) && ['alipay', 'wechat'].indexOf(row.pay_type) > -1;
-                        break;
+                    break;
                     case 'refund': 
                         show = row.status != -1 && row.is_pay == 1 && (row.after_sale_status == 1 || row.groupon_status == 1) == 1;
-                        break;
+                    break;
                     case 'reject': 
                         show = row.is_pay == 1 && row.after_sale_status == 1;
-                        break;
+                    break;
                     case 'exchange':
                         show = ['2', '3'].indexOf(postSaleData.type) != -1 
-                        break;
+                    break;
                 }
                 return show;
             }
         }
-    })
+    });
+    Yi.vue.mixin({
+        methods: {
+            showPayStatus: function(row) {
+                var val = row.is_pay;
+                var option = {
+                        0: {text: '未支付', color: '#999'}, 1: {text: '已支付', color: '#0fbe0f'}
+                    };
+                var pay = {
+                    wechat: {text: '微信支付', types: {
+                        mp: '公众号', miniapp: '小程序', app: 'APP', pc: '电脑'
+                    }}, 
+                    alipay: {text: '支付宝', types: {
+                        mp: '小程序', h5: 'H5', app: 'APP', pc: '电脑'
+                    }},
+                    underline: {text: '线下支付', types: {underline: ''}},
+                    system: {text: '系统支付', types: {system: ''}},
+                    money: {text: '余额支付', types: {money: '余额支付'}}
+                };
+                var el = '<span style="color: ' + option[val].color + '">' + option[val].text + '</span>';
+                if (val) {
+                    el += '<span>' + (pay[row.pay_type] ? pay[row.pay_type].text : '余额支付') + '-' + (row.pay_type === null ? '' : pay[row.pay_type].types[row.pay_method]) + '</span>';
+                    el += '<span>' + Yi.date(row.pay_time).format('yyyy-MM-dd hh:mm:ss') + '</span>'
+                };
+                return el;
+            },
+            getPayType: function(row) {
+                var pay = {
+                    wechat: {text: '微信支付', types: {
+                        mp: '公众号', miniapp: '小程序', app: 'APP', pc: '电脑'
+                    }}, 
+                    alipay: {text: '支付宝', types: {
+                        mp: '小程序', h5: 'H5', app: 'APP', pc: '电脑'
+                    }},
+                    underline: {text: '线下支付', types: {underline: ''}},
+                    system: {text: '系统支付', types: {system: ''}},
+                    money: {text: '余额支付', types: {money: ''}}
+                };
+                return {
+                    type: pay[row.pay_type] ? pay[row.pay_type].text : '余额支付',
+                    method: row.pay_type === null ? '' : pay[row.pay_type].types[row.pay_method],
+                    time: Yi.date(row.pay_time).format('yyyy-MM-dd hh:mm:ss')
+                }
+            },
+            showReceivedStatus: function(row) {
+                var val = row.is_received;
+                var option = {
+                    0: {text: '未收货', color: '#999'}, 1: {text: '已收货', color: '#0fbe0f'}
+                };
+                var el = '<span style="color: ' + option[val].color + '">' + option[val].text + '</span>';
+                if (val) {
+                    el += '<span>' + Yi.date(row.received_time).format('yyyy-MM-dd hh:mm:ss') + '</span>';
+                }
+                return el;
+            },
+            showPrice: function(row) {
+                var el = '<div>商品：<span class="text-success">' + row.products_price + '</span>；'
+                    + '快递：<span class="text-success">+' + row.delivery_price + '</span>；'
+                    + '积分抵扣：<span class="text-danger">-' + row.score_price + '</span>；'
+                    + '余额抵扣：<span class="text-danger">-' + row.money_price + '</span>；'
+                    + '优惠：<span class="text-danger">-' + row.discount_price + '</span>；'
+                    + '小计：<span class="text-success">' + row.order_price + '</span>；'
+                    + '已付：<span class="text-success">' + row.payed_price + '</span>；'
+                    + '</div>';
+                return el;
+            },
+            getOrderStatus: function(row) {
+                var val = row.status;
+                if (row.after_sale_status == 1) {
+                    var json = row.after_sale_data;
+                    var types = {1: '仅退款', 2: '退款退货', 3: '换货'}
+                    el = '<span style="color:red;">申请售后</span><span style="color:red;">' + types[json.type] + '</span>';
+                    if (json.no) el += "<span>单号: " + json.no + "</span>";
+                    el += '<span>备注：' + json.remark + '</span>';
+                } else if (row.after_sale_status == 2) {
+                    el = '<span style="color: green;">售后完成</span><span>' + row.after_saler_remark + '</span>';
+                } else if (val == -1) el = "<span style='color: #999;'>已取消</span>";
+                else {
+                    el = '<span style="color: #0fbe0f;">' + order_status[val] + '</span>';
+                }
+                return el;
+            },
+            getOrderStatusText: function(row) {
+                return order_status[row.status];
+            },
+            getOrderTotal: function(row) {
+                var total = 0;
+                for (var i = 0; i < row.products.length; i ++) {
+                    total += row.products[i].quantity;
+                }
+                return total;
+            },
+            date: function(date) {
+                return Yi.date(date).format('yyyy-MM-dd hh:mm:ss')
+            }
+        }
+    });
 
 
     Yi.vue.option({

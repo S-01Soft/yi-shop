@@ -1,4 +1,5 @@
 const http = uni.$u.http;
+const gql = uni.$u.gql;
 const state = {
 	products: [],
 	isTempProduct: 0,
@@ -39,40 +40,109 @@ const mutations = {
 
 const actions = {
 	cartAddProduct(ctx, form) {
-		return new Promise((resolve, reject) => {
-			http.post('shop/api/cart/add', form).then(data => {
-				resolve(data)
-			}).catch(e => { reject(e) })
+		return new Promise(async (resolve, reject) => {
+			const query = `
+				mutation ($sku_id: Int!, $quantity: Int!) {
+				  addCart(sku_id: $sku_id, quantity: $quantity)
+				}
+			`
+			const result = await gql.fetch(query, form);
+			const err = result.getError('addCart');
+			if (err) {
+				result.show(err);
+				reject(err);
+			}
+			else resolve(result.get('addCart'));
 		})
 	},
 	cartUpdateProduct(ctx, form) {
-		return new Promise((resolve, reject) => {
-			http.post('shop/api/cart/edit', form).then(data => {
-				resolve(data)
-			}).catch(e => { reject(e) })
+		return new Promise(async(resolve, reject) => {
+			const query = `
+				mutation ($sku_id: Int!, $quantity: Int!) {
+					editCart(sku_id: $sku_id, quantity: $quantity) {
+						id
+						product_id
+						quantity
+						is_selected
+					}
+				}
+			`
+			const result = await gql.fetch(query, form);
+			const err = result.getError('editCart');
+			if (err) {
+				result.show(err);
+				reject(err)
+			} else {
+				resolve(result.get('editCart'))
+			}
 		})
 	},
 	cartUpdateStatus(ctx, form) {
-		return new Promise((resolve, reject) => {
-			http.post('shop/api/cart/updateStatus', form).then(data => {
-				resolve(data)
-			}).catch(e => { reject(e) })
+		return new Promise(async(resolve, reject) => {
+			const query = `
+				mutation ($ids: [Int!]!) {
+					updateCartStatus(ids: $ids) {
+						id
+						product_id
+						is_selected
+						quantity
+					}
+				}
+			`
+			const result = await gql.fetch(query, form);
+			const err = result.getError('updateCartStatus');
+			if (err) {
+				result.show(err);
+				reject(err)
+			} else {
+				resolve(result.get('updateCartStatus'))
+			}
 		})
 	},
 	getCartProducts({ commit }, form) {
-		return new Promise((resolve, reject) => {
-			http.get('shop/api/cart', {params: form}).then(data => {
-				commit('SAVE_CART_PRODUCTS', data)
-				resolve(data)
-			}).catch(e => { reject(e) })
+		return new Promise(async (resolve, reject) => {
+			const query = `
+				{
+				  carts {
+				    id
+				    is_selected
+				    quantity
+				    product {
+				      id
+					  on_sale
+				      title
+				      image
+				    }
+				    sku {
+				      id
+				      value
+				      price
+				    }
+				  }
+				}
+			`
+			const result = await gql.fetch(query);
+			const err = result.getError('carts');
+			if (err) reject(err);
+			else {
+				const { carts } = result.get();
+				commit('SAVE_CART_PRODUCTS', carts)
+				resolve(carts)
+			}
 		})
 	},
 	clearCartProducts({ commit }, form) {
-		return new Promise((resolve, reject) => {
-			http.post('shop/api/cart/clear').then(data => {
-				commit('SAVE_CART_PRODUCTS', [])
-				resolve(data)
-			}).catch(e => {reject(e)})
+		return new Promise(async (resolve, reject) => {
+			const query = `
+				mutation {
+					clearCart
+				}
+			`
+			const result = await gql.fetch(query);
+			const err = result.getError('clearCart');
+			if (err) return result.show(err);
+			commit('SAVE_CART_PRODUCTS', [])
+			resolve()
 		})
 	}
 }

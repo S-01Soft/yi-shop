@@ -35,29 +35,86 @@
             {:widget('after_btns')}
         </div>
         {:widget('before_table')}
-        <a-table class="table" :columns="c_columns" :data-source="data" :default-expand-all-rows="true"
-            :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }" :pagination="false"
-            :loading="loading">
-            <template slot="action" slot-scope="row">
-                {:widget('before_action_slot')}
+
+        <div>
+            <div v-for="(row, index) in data" :key="index" class="order-item">
+                <div class="order-header">
+                    <div class="order-header-item">订单编号： {{row.order_sn}} <i :data-clipboard-text="row.order_sn" title="点击复制订单号" class="far fa-copy clipboard pointer"></i></div>
+                    <div class="order-header-item">时间：{{date(row.created_at)}}</div>
+                    <div class="order-header-item"><span>下单用户：</span> <span>{{row.user.nickname}} [{{row.user.id}}]</span></div>
+                    <div class="order-header-item">
+                        <div v-if="row.is_pay">
+                            <a-tooltip>
+                                <template slot="title">
+                                    <div>{{getPayType(row).time}}</div>
+                                </template>
+                                <a-tag color="#87d068">{{getPayType(row).type}}{{getPayType(row).method ? ' - ' + getPayType(row).method : ''}}</a-tag>
+                            </a-tooltip>
+                        </div>
+                        <div v-else>
+                            <a-tag color="#aaa">未支付</a-tag>
+                        </div>
+                    </div>
+                    
+                    <div class="order-header-item">
+                        <div v-if="row.after_sale_status == 1">
+                            <a-tooltip>
+                                <template slot="title">
+                                    <div><span>售后类型：</span><span>{{{1: '仅退款', 2: '退款退货', 3: '换货'}[row.after_sale_data.type]}}</span></div>
+                                    <div v-if="row.after_sale_data.no"><span>单号：</span><span>{{row.after_sale_data.no}}</span></div>
+                                    <div><span>备注：</span><span>{{row.after_sale_data.remark}}</span></div>
+                                </template>
+                                <a-tag color="#f50">申请售后</a-tag>
+                            </a-tooltip>
+                            
+                        </div>
+                        <div v-if="row.after_sale_status == 2">
+                            <a-tag color="#f50">售后完成</a-tag>
+                        </div>
+                        <div v-if="row.after_sale_status == -1">
+                            <a-tag>售后取消</a-tag>
+                        </div>
+                        <div v-if="row.after_sale_status == -2">
+                            <a-tooltip>
+                                <template slot="title">
+                                    <div><span>售后类型：</span><span>{{{1: '仅退款', 2: '退款退货', 3: '换货'}[row.after_sale_data.type]}}</span></div>
+                                    <div v-if="row.after_sale_data.no"><span>单号：</span><span>{{row.after_sale_data.no}}</span></div>
+                                    <div><span>备注：</span><span>{{row.after_sale_data.remark}}</span></div>
+                                    <div><span>商家驳回：</span><span>{{row.after_saler_remark}}</span></div>
+                                </template>
+                                <a-tag color="#fa8c16">售后驳回</a-tag>
+                            </a-tooltip>
+                        </div>
+                    </div>
 
 
-                {if !in_array('slot_edit_btn', $hidden)}
-                <a href="javascript:;" @click="handleEdit(row)">编辑</a>
-                {/if}
-                {if !in_array('slot_delete_btn', $hidden)}
-                <a-popconfirm placement="topRight" ok-text="确认" cancel-text="取消" @confirm="handleDelete(row)">
-                    <template slot="title">
-                        <p>确认删除该记录吗？</p>
-                    </template>
-                    <span class="pointer text-danger">删除</span>
-                </a-popconfirm>
-                {/if}
-                {:widget('after_action_slot')}
+                    <div class="order-header-item">
+                        <a-tag v-if="row.status == -1" color="#aaa">订单关闭</a-tag>
+                        <a-tag v-else color="#108ee9">{{getOrderStatusText(row)}}</a-tag>
+                    </div>
 
-            </template>
-            {:widget('table_slot')}
-        </a-table>
+                </div>
+                <div class="order-item-content">
+                    <div class="order-products">
+                        <div class="order-price" v-html="showPrice(row)"></div>
+                        <div v-for="(v,k) in row.products" :key="k" class="order-product-item">
+                            <div style="width: 70px;">
+                                <img style="width: 100%;" :src="v.image" alt="">
+                            </div>
+                            <div class="product-item-content">
+                                <div class="line-1">{{v.title}}</div>
+                                <div>{{v.attributes}} * {{v.quantity}}</div>
+                                <div style="color: #de593e;">￥{{v.price}}</div>
+                            </div>
+                        </div>
+                        <div style="font-weight: 700;">共 {{getOrderTotal(row)}} 件商品</div>
+                    </div>
+                    <div class="order-item-op">
+                        {:widget('before_action_slot')}
+                    </div>
+                </div>
+            </div>
+        </div>
         {:widget('after_table')}
         <a-pagination v-if="pagination.total" v-model="query.page" :total="pagination.total" :page-size.sync="query.page_size" show-size-changer show-quick-jumper :show-total="function(total, range) {return $lang('%d records', total);}" :page-size-options="pagination.page_size_options"></a-pagination>
 
@@ -66,6 +123,59 @@
 </template>
 {/block}
 {block name="style"}
+<style>
+    .order-item {
+        border: 1px solid #ede5e5;
+        margin: 10px;
+        border-radius: 5px;
+    }
+    .order-header {
+        background: #eef2f5;padding: 10px 10px;display:flex;
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
+    }
+    .order-header-item {
+        margin: 0 5px;
+    }
+    .order-header-item span {
+        margin: 0 2px;
+    }
+    .order-price {
+        padding: 10px;
+        background: #fff8f8;
+    }
+    .order-item-content {
+        display: flex;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+    }
+    .order-products {
+        padding: 10px;
+        flex: 1;
+    }
+    .order-product-item {
+        text-align: center;display:flex;align-items: center;margin: 5px 0;
+    }
+    .order-product-item img {
+        border-radius: 5px;
+    }
+    .product-item-content {
+        margin-left: 10px;
+        flex: 1;
+        text-align: left;
+    }
+    .order-item-op {
+        width: 120px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-left: 1px solid #ddd;
+        flex-direction: column;
+    }
+    .order-item-op a {
+        margin: 5px 0;;
+    }
+</style>
 {:widget('style')}
 {/block}{block name="scripts"}
 {:widget('scripts')}

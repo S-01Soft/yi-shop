@@ -15,7 +15,7 @@ class Product extends Base
         $params = $this->request->get();
         try {
             $data = ev('ShopSearch', $params);
-            $paginator = paginator($data);
+            $paginator = \support\Paginator::create($data['total'], $data['per_page']);
             $categroies = \app\shop\logic\api\CategoryLogic::instance()->getTreeArray();
             $this->assign('product_categories', $categroies);
             $this->assign('cat_id', request()->get('cat_id'));

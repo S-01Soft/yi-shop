@@ -1,0 +1,53 @@
+    "创建订单"
+    createOrder(
+        "收货地址ID"
+        address_id: Int!
+        "商品信息，可空，空则表示通过购物车创建订单"
+        product: ShopProductInfoInput
+        "使用余额"
+        use_money: Boolean = false
+        "使用积分"
+        use_score: Boolean = false
+        "用户备注"
+        remark: String
+    ): String
+    @auth(login: true)
+    @resolver(name: "\\app\\shop\\resolvers\\Order@create")
+
+    "取消订单"
+    cancelOrder(
+        order_sn: String!
+    ): ShopOrder
+    @auth(login: true)
+    @resolver(name: "\\app\\shop\\resolvers\\Order@cancel")
+
+    "删除订单"
+    deleteOrder(
+        order_sn: String!
+    ): Boolean
+    @auth(login: true)
+    @resolver(name: "\\app\\shop\\resolvers\\Order@delete")
+
+    "申请售后"
+    applyPostSale(
+        order_sn: String!
+        no: String
+        remark: String
+        type: Int!
+    ): Boolean
+    @auth(login: true)
+    @resolver(name: "\\app\\shop\\resolvers\\Order@applyPostSale")
+
+    "取消售后"
+    cancelPostSale(
+        order_sn: String!
+    ): Boolean
+    @auth(login: true)
+    @resolver(name: "\\app\\shop\\resolvers\\Order@cancelPostSale")
+
+    "确认收货"
+    receiveOrder(
+        order_sn: String!
+    ): Boolean
+    @auth(login: true)
+    @resolver(name: "\\app\\shop\\resolvers\\Order@receive")
