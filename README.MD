@@ -4,7 +4,7 @@
 基于uniapp的商城系统，前端uniapp+uview，支持PC端。
 后端是PHP+YiAdmin。
 #### 基于GraphQL的Api接口
-![输入图片说明](images1.png)
+![输入图片说明](images/image.png)
 
 #### 依赖
 该项目依赖以下模块：
