@@ -3,6 +3,7 @@
 namespace app\shop\loaders;
 
 use support\Db;
+use Yi\GraphQL\Dataloader;
 use app\shop\model\api\ProductSkuModel;
 use app\shop\model\api\ProductModel;
 use app\shop\model\api\UnitModel;
@@ -20,7 +21,7 @@ class Shop
 {
     public static function getSkusByProductId($productId)
     {
-        return request()->dataloader->make('ShopSkusByProductId')->defer($productId, function($values) {
+        return app(Dataloader::class)->make('ShopSkusByProductId')->defer($productId, function($values) {
             if (empty($values)) return [];
             $query = ProductSkuModel::whereIn('product_id', $values);
             $result = $query->get()->groupBy('product_id')->toArray();
@@ -30,7 +31,7 @@ class Shop
 
     public static function getProductById($id)
     {
-        return request()->dataloader->make('ShopProductById')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopProductById')->defer($id, function($values) {
             if (empty($values)) return [];
             return ProductModel::whereIn('id', $values)->get()->keyBy('id')->toArray();
         });
@@ -38,7 +39,7 @@ class Shop
 
     public static function getExpressByCode($code)
     {
-        return request()->dataloader->make('ShopExpressByCode')->defer($code, function($values) {
+        return app(Dataloader::class)->make('ShopExpressByCode')->defer($code, function($values) {
             if (empty($values)) return [];
             return ExpressModel::whereIn('code', $values)->get()->keyBy('code')->toArray();
         });
@@ -46,7 +47,7 @@ class Shop
 
     public static function getUserById($id)
     {
-        return request()->dataloader->make('ShopUserById')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopUserById')->defer($id, function($values) {
             if (empty($values)) return [];
             return UserModel::whereIn('id', $values)->get()->keyBy('id')->toArray();
         });
@@ -54,7 +55,7 @@ class Shop
 
     public static function getSkuById($id)
     {
-        return request()->dataloader->make('ShopSkuById')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopSkuById')->defer($id, function($values) {
             if (empty($values)) return [];
             return ProductSkuModel::whereIn('id', $values)->get()->keyBy('id')->toArray();
         });
@@ -62,7 +63,7 @@ class Shop
 
     public static function getCategoryByProductId($id)
     {
-        return request()->dataloader->make('ShopCategoryByProductId')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopCategoryByProductId')->defer($id, function($values) {
             if (empty($values)) return [];
             return CategoryModel::whereIn('id', $values)->get()->keyBy('id')->toArray();
         });
@@ -70,7 +71,7 @@ class Shop
 
     public static function getUnit($id)
     {
-        return request()->dataloader->make('ShopUnitById')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopUnitById')->defer($id, function($values) {
             if (empty($values)) return [];
             return UnitModel::whereIn('id', $values)->get()->keyBy('id')->toArray();
         });
@@ -78,7 +79,7 @@ class Shop
 
     public static function getServicesByProductId($id)
     {
-        return request()->dataloader->make('ShopServicesByProductId')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopServicesByProductId')->defer($id, function($values) {
             if (empty($values)) return [];
             $data = ProductServiceModel::with(['ServiceTag'])->whereIn('product_id', $values)->get()->groupBy('product_id')->toArray();
             $result = [];
@@ -96,7 +97,7 @@ class Shop
     public static function getCommentsByProductId($id, $args, $fieldValue)
     {
         $limit = $fieldValue->getArg('limit');
-        return request()->dataloader->make('ShopCommentsByProductId')->defer($id, function($values) use ($limit) {
+        return app(Dataloader::class)->make('ShopCommentsByProductId')->defer($id, function($values) use ($limit) {
             if (empty($values)) return [];
             return CommentModel::whereIn('product_id', $values)->limit($limit)->get()->groupBy('product_id')->toArray();
         });
@@ -104,7 +105,7 @@ class Shop
 
     public static function getOrderById($id)
     {
-        return request()->dataloader->make('ShopOrderById')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopOrderById')->defer($id, function($values) {
             if (empty($values)) return [];
             return OrderModel::whereIn('id', $values)->get()->keyBy('id')->toArray();
         });
@@ -112,7 +113,7 @@ class Shop
 
     public static function getOrderProductById($id)
     {
-        return request()->dataloader->make('ShopOrderProductById')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopOrderProductById')->defer($id, function($values) {
             if (empty($values)) return [];
             return OrderProductModel::whereIn('id', $values)->get()->keyBy('id')->toArray();
         });
@@ -120,7 +121,7 @@ class Shop
 
     public static function getOrderProductsByOrderId($id)
     {
-        return request()->dataloader->make('ShopOrderProductsByOrderId')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopOrderProductsByOrderId')->defer($id, function($values) {
             if (empty($values)) return [];
             return OrderProductModel::whereIn('order_id', $values)->get()->groupBy('order_id')->toArray();
         });
@@ -128,7 +129,7 @@ class Shop
 
     public static function getIsFavoriteByProductId($id)
     {
-        return request()->dataloader->make('ShopFavoriteByProductId')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopFavoriteByProductId')->defer($id, function($values) {
             if (empty($values)) return [];
             if (!get_user()->isLogin()) return [];
             return FavoriteModel::whereIn('product_id', $values)->where('user_id', get_user()->id)->get()->keyBy('product_id')->toArray();
@@ -137,7 +138,7 @@ class Shop
 
     public static function getFavoriteByProductId($id)
     {
-        return request()->dataloader->make('ShopFavoriteByProductId')->defer($id, function($values) {
+        return app(Dataloader::class)->make('ShopFavoriteByProductId')->defer($id, function($values) {
             if (empty($values)) return [];
             if (!get_user()->isLogin()) return [];
             return FavoriteModel::whereIn('product_id', $values)->where('user_id', get_user()->id)->get()->keyBy('product_id')->toArray();
