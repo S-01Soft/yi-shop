@@ -18,7 +18,7 @@ class Product extends Base
             $paginator = \support\Paginator::create($data['total'], $data['per_page']);
             $categroies = \app\shop\logic\api\CategoryLogic::instance()->getTreeArray();
             $this->assign('product_categories', $categroies);
-            $this->assign('cat_id', request()->get('cat_id'));
+            $this->assign('category_id', request()->get('category_id'));
             $this->assign('paginator', $paginator);
             $this->assign('data', $data);
             return $this->fetch('shop/list');

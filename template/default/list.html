@@ -10,16 +10,16 @@
                     <ul>
                         <li>
                             <div>
-                                <a style="font-size:16px;font-weight:700;" href="/shop/index/product/list.html{if request()->get('kw')}?kw={:request()->get('kw')}{/if}" class="{if !$cat_id}active-cat{/if}">全部</a>
+                                <a style="font-size:16px;font-weight:700;" href="/shop/index/product/list.html{if request()->get('kw')}?kw={:request()->get('kw')}{/if}" class="{if !$category_id}active-cat{/if}">全部</a>
                                 <a href="/shop/index/product/list.html" style="float: right;" class="text-sm text-muted">清空搜索条件</a>
                             </div>
                         </li>
                         {foreach $product_categories as $c}
                         <li>
                             <div>
-                                <a style="font-size:16px;font-weight:700;" class="{if $cat_id==$c['id']}active-cat{/if}" href="/shop/index/product/list.html?cat_id={$c['id']}{if request()->get('kw')}&kw={:request()->get('kw')}{/if}">{$c.name}</a>
+                                <a style="font-size:16px;font-weight:700;" class="{if $category_id==$c['id']}active-cat{/if}" href="/shop/index/product/list.html?category_id={$c['id']}{if request()->get('kw')}&kw={:request()->get('kw')}{/if}">{$c.name}</a>
                                 {foreach $c['childlist'] as $v}
-                                <a class="{if $cat_id==$v['id']}active-cat{/if}" style="font-size: 14px;" href="/shop/index/product/list.html?cat_id={$v['id']}{if request()->get('kw')}&kw={:request()->get('kw')}{/if}">{$v.name}</a>
+                                <a class="{if $category_id==$v['id']}active-cat{/if}" style="font-size: 14px;" href="/shop/index/product/list.html?category_id={$v['id']}{if request()->get('kw')}&kw={:request()->get('kw')}{/if}">{$v.name}</a>
                                 {/foreach}
                             </div>
                         </li>
@@ -87,15 +87,15 @@
                     <ul>
                         <li>
                             <div>
-                                <a style="font-size:15px;font-weight:700;" href="/shop/index/product/list.html" class="{if !$cat_id}active-cat{/if}">全部</a>
+                                <a style="font-size:15px;font-weight:700;" href="/shop/index/product/list.html" class="{if !$category_id}active-cat{/if}">全部</a>
                             </div>
                         </li>
                         {foreach $product_categories as $c}
                         <li>
                             <div>
-                                <a style="font-size:15px;font-weight:700;" class="{if $cat_id==$c['id']}active-cat{/if}" href="/shop/index/product/list.html?cat_id={$c['id']}">{$c.name}</a>
+                                <a style="font-size:15px;font-weight:700;" class="{if $category_id==$c['id']}active-cat{/if}" href="/shop/index/product/list.html?category_id={$c['id']}">{$c.name}</a>
                                 {foreach $c['childlist'] as $v}
-                                <a class="{if $cat_id==$v['id']}active-cat{/if}" style="font-size: 14px;" href="/shop/index/product/list.html?cat_id={$v['id']}">{$v.name}</a>
+                                <a class="{if $category_id==$v['id']}active-cat{/if}" style="font-size: 14px;" href="/shop/index/product/list.html?category_id={$v['id']}">{$v.name}</a>
                                 {/foreach}
                             </div>
                         </li>
